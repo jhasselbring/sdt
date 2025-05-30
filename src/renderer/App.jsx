@@ -4,8 +4,12 @@ import { useAppContext } from './context/AppContext.jsx';
 
 function App() {
   const { state } = useAppContext();
+
   return (
-    <Layout layoutConfig={{ components: state.componentSections }} />
+    <Layout
+      layoutConfig={{ components: state.componentSections }}
+      drawerState={state.componentSections.state}
+    />
   );
 }
 
