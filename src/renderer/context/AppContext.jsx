@@ -28,10 +28,10 @@ const initialState = {
         padding: '0',
       }
     },
-    state:{
+    state: {
       isLeftDrawerOpen: true,
-      isRightDrawerOpen: false,
-      isConsoleOpen: false,
+      isRightDrawerOpen: true,
+      isConsoleOpen: true,
     }
   },
   project: null, // e.g., { name: '', outputDir: '', ... }

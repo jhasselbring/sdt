@@ -5,9 +5,9 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
-    PanelGroup,
-    Panel,
-    PanelResizeHandle,
+  PanelGroup,
+  Panel,
+  PanelResizeHandle,
 } from 'react-resizable-panels';
 
 // Layout constants
@@ -141,7 +141,6 @@ function Layout({
   return (
     <StyledContainer style={layoutConfig?.components?.styles?.Container} data-name="Container">
       <StyledHeader style={layoutConfig?.components?.styles?.Header} data-name="Header">
-
         {renderSection(layoutConfig?.components, 'Header')}
       </StyledHeader>
 
@@ -150,14 +149,10 @@ function Layout({
           {renderSection(layoutConfig?.components, 'Nav')}
         </StyledNav>
 
-        <PanelGroup
-          direction="horizontal"
-          autoSaveId="main-panels"
-          onLayout={handleSaveLayout}
-        >
+        <PanelGroup direction="horizontal" autoSaveId="main-panels" onLayout={handleSaveLayout}>
           {drawerState.isLeftDrawerOpen && (
             <>
-              <Panel minSize={1} defaultSize={15}>
+              <Panel minSize={1} defaultSize={15} order={1}>
                 <LeftDrawer style={layoutConfig?.components?.styles?.LeftDrawer} data-name="LeftDrawer">
                   {renderSection(layoutConfig?.components, 'LeftDrawer')}
                 </LeftDrawer>
@@ -166,7 +161,7 @@ function Layout({
             </>
           )}
 
-          <Panel minSize={1}>
+          <Panel minSize={1} order={2}>
             <EditorArea style={layoutConfig?.components?.styles?.Editor} data-name="Editor">
               <PanelGroup direction="vertical">
                 <Panel minSize={20}>
@@ -197,7 +192,7 @@ function Layout({
           {drawerState.isRightDrawerOpen && (
             <>
               <HorizontalResizeHandle />
-              <Panel minSize={1} defaultSize={15}>
+              <Panel minSize={1} defaultSize={15} order={3}>
                 <RightDrawer style={layoutConfig?.components?.styles?.RightDrawer} data-name="RightDrawer">
                   {renderSection(layoutConfig?.components, 'RightDrawer')}
                 </RightDrawer>
