@@ -9,10 +9,8 @@ import {
     Panel,
     PanelResizeHandle,
 } from 'react-resizable-panels';
-// Import AppContext
-import { useAppContext } from '../context/AppContext';
 
-// Layout constants for sizing and colors
+// Layout constants
 const headerHeight = 56;
 const footerHeight = 31;
 const navWidth = 56;
@@ -20,7 +18,7 @@ const mainHeight = `calc(100vh - ${headerHeight}px - ${footerHeight}px)`;
 const appBackgroundColor = '#252a38';
 const appSectionBackgroundColor = '#171b26';
 
-// Styled-components for each layout section
+// Styled layout containers
 const StyledContainer = styled.div`
   background-color: ${appBackgroundColor};
 `;
@@ -44,6 +42,8 @@ const StyledNav = styled.nav`
   color: white;
   width: ${navWidth}px;
 `;
+
+// Panel wrappers
 const PanelWrapper = styled.div`
   height: 100%;
   background-color: inherit;
@@ -51,6 +51,9 @@ const PanelWrapper = styled.div`
   border-radius: 4px;
 `;
 const LeftDrawer = styled(PanelWrapper)`
+  background-color: ${appSectionBackgroundColor};
+`;
+const RightDrawer = styled(PanelWrapper)`
   background-color: ${appSectionBackgroundColor};
 `;
 const EditorArea = styled(PanelWrapper)`
@@ -72,9 +75,8 @@ const ConsolePanel = styled.div`
   color: white;
   height: 100%;
 `;
-const RightDrawer = styled(PanelWrapper)`
-  background-color: ${appSectionBackgroundColor};
-`;
+
+// Resize handles
 const HorizontalResizeHandle = styled(PanelResizeHandle)`
   background-color: #252a38;
   cursor: col-resize;
@@ -92,134 +94,124 @@ const VerticalResizeHandle = styled(PanelResizeHandle)`
   }
 `;
 
-/**
- * Renders a section component by name, with optional styles if defined in layoutConfig.components.styles.
- * @param {object} components - The components object from layoutConfig.
- * @param {string} section - The section/component name (e.g., 'Header', 'Nav').
- * @returns {JSX.Element} The rendered section or a fallback message.
- */
+// Utility: Render a layout section by name
 function renderSection(components, section) {
-    console.log(components); // For debugging: shows what components are available
-    const SectionComponent = components?.[section];
-    const sectionStyles = components?.styles?.[section];
-    if (!SectionComponent) {
-        return (
-            <div style={{ color: 'white', padding: '1rem' }}>
-                Please provide <code>components.{section}</code> to customize this component to the Layout component.
-            </div>
-        );
-    }
-    // Pass style prop if defined for this section
+  const SectionComponent = components?.[section];
+  const sectionStyles = components?.styles?.[section];
+  if (!SectionComponent) {
     return (
-        <SectionComponent {...(sectionStyles ? { style: sectionStyles } : {})} />
+      <div style={{ color: 'white', padding: '1rem' }}>
+        Please provide <code>components.{section}</code> to customize this component to the Layout component.
+      </div>
     );
+  }
+  return <SectionComponent {...(sectionStyles ? { style: sectionStyles } : {})} />;
 }
 
 /**
- * Main Layout component for the app. Handles header, nav, drawers, editor, and console areas.
- * Accepts a layoutConfig prop to inject custom components and styles for each section.
+ * Layout Component
+ * @param layoutConfig - object containing custom components and styles
+ * @param drawerState - object with booleans for leftDrawer, rightDrawer, and console visibility
+ * @param onToggleLeftDrawer - toggle callback
+ * @param onToggleRightDrawer - toggle callback
+ * @param onToggleConsole - toggle callback
  */
-function Layout({ layoutConfig = {} }) {
-    const [defaultLayout, setDefaultLayout] = useState(undefined);
-    const storageKey = 'editor-panel-layout';
-    // Log the components for debugging
-    console.log(layoutConfig.components);
-    // Restore layout from localStorage if available
-    useEffect(() => {
-        const saved = localStorage.getItem(storageKey);
-        if (saved) {
-            try {
-                setDefaultLayout(JSON.parse(saved));
-            } catch {
-                // fallback to default layout
-            }
-        }
-    }, []);
+function Layout({
+  layoutConfig = {},
+  drawerState = { isLeftDrawerOpen: false, isRightDrawerOpen: false, isConsoleOpen: false }
+}) {
+  const [defaultLayout, setDefaultLayout] = useState(undefined);
+  const storageKey = 'editor-panel-layout';
 
-    // Save panel layout to localStorage
-    const handleSaveLayout = (sizes) => {
-        localStorage.setItem(storageKey, JSON.stringify(sizes));
-    };
+  useEffect(() => {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        setDefaultLayout(JSON.parse(saved));
+      } catch {
+        // fallback to default layout
+      }
+    }
+  }, []);
 
-    // Use context for toggling drawers/console
-    const { state, toggleLeftDrawer, toggleRightDrawer, toggleConsole } = useAppContext();
-    const drawerState = state.componentSections.state;
+  const handleSaveLayout = (sizes) => {
+    localStorage.setItem(storageKey, JSON.stringify(sizes));
+  };
 
-    return (
-        <StyledContainer style={layoutConfig?.components?.styles?.Container} data-name="Container">
-            {/* Header section, with optional custom styles */}
-            <StyledHeader style={layoutConfig?.components?.styles?.Header} data-name="Header">
-                {/* Demo toggle buttons */}
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <button onClick={toggleLeftDrawer}>Toggle LeftDrawer</button>
-                  <button onClick={toggleConsole}>Toggle Console</button>
-                  <button onClick={toggleRightDrawer}>Toggle RightDrawer</button>
-                </div>
-                {renderSection(layoutConfig?.components, 'Header')}
-            </StyledHeader>
+  return (
+    <StyledContainer style={layoutConfig?.components?.styles?.Container} data-name="Container">
+      <StyledHeader style={layoutConfig?.components?.styles?.Header} data-name="Header">
 
-            <StyledMain style={layoutConfig?.components?.styles?.Main} data-name="Main">
-                {/* Navigation section */}
-                <StyledNav style={layoutConfig?.components?.styles?.Nav} data-name="Nav">
-                    {renderSection(layoutConfig?.components, 'Nav')}
-                </StyledNav>
-                {/* Main panel group: left drawer, editor, console, right drawer */}
-                <PanelGroup
-                    direction="horizontal"
-                    autoSaveId="main-panels"
-                    onLayout={handleSaveLayout}
-                >
-                    {/* Left drawer section */}
-                    {drawerState.isLeftDrawerOpen && (
-                      <Panel minSize={1} defaultSize={15}>
-                          <LeftDrawer style={layoutConfig?.components?.styles?.LeftDrawer} data-name="LeftDrawer">
-                              {renderSection(layoutConfig?.components, 'LeftDrawer')}
-                          </LeftDrawer>
-                      </Panel>
-                    )}
+        {renderSection(layoutConfig?.components, 'Header')}
+      </StyledHeader>
 
-                    {drawerState.isLeftDrawerOpen && <HorizontalResizeHandle />}
+      <StyledMain style={layoutConfig?.components?.styles?.Main} data-name="Main">
+        <StyledNav style={layoutConfig?.components?.styles?.Nav} data-name="Nav">
+          {renderSection(layoutConfig?.components, 'Nav')}
+        </StyledNav>
 
-                    {/* Editor and console panels */}
-                    <Panel minSize={1}>
-                        <EditorArea style={layoutConfig?.components?.styles?.Editor} data-name="Editor">
-                            <PanelGroup direction="vertical">
-                                <Panel minSize={20}>
-                                    <EditorPanel id="editors">
-                                        {renderSection(layoutConfig?.components, 'Editor')}
-                                    </EditorPanel>
-                                </Panel>
-                                {drawerState.isConsoleOpen && <VerticalResizeHandle />}
-                                {drawerState.isConsoleOpen && (
-                                  <Panel minSize={10}>
-                                      <ConsolePanel id="console" className="console-area" style={layoutConfig?.components?.styles?.ConsolePanel} data-name="ConsolePanel">
-                                          {renderSection(layoutConfig?.components, 'ConsolePanel')}
-                                      </ConsolePanel>
-                                  </Panel>
-                                )}
-                            </PanelGroup>
-                        </EditorArea>
+        <PanelGroup
+          direction="horizontal"
+          autoSaveId="main-panels"
+          onLayout={handleSaveLayout}
+        >
+          {drawerState.isLeftDrawerOpen && (
+            <>
+              <Panel minSize={1} defaultSize={15}>
+                <LeftDrawer style={layoutConfig?.components?.styles?.LeftDrawer} data-name="LeftDrawer">
+                  {renderSection(layoutConfig?.components, 'LeftDrawer')}
+                </LeftDrawer>
+              </Panel>
+              <HorizontalResizeHandle />
+            </>
+          )}
+
+          <Panel minSize={1}>
+            <EditorArea style={layoutConfig?.components?.styles?.Editor} data-name="Editor">
+              <PanelGroup direction="vertical">
+                <Panel minSize={20}>
+                  <EditorPanel id="editors">
+                    {renderSection(layoutConfig?.components, 'Editor')}
+                  </EditorPanel>
+                </Panel>
+
+                {drawerState.isConsoleOpen && (
+                  <>
+                    <VerticalResizeHandle />
+                    <Panel minSize={10}>
+                      <ConsolePanel
+                        id="console"
+                        className="console-area"
+                        style={layoutConfig?.components?.styles?.ConsolePanel}
+                        data-name="ConsolePanel"
+                      >
+                        {renderSection(layoutConfig?.components, 'ConsolePanel')}
+                      </ConsolePanel>
                     </Panel>
+                  </>
+                )}
+              </PanelGroup>
+            </EditorArea>
+          </Panel>
 
-                    {drawerState.isRightDrawerOpen && <HorizontalResizeHandle />}
+          {drawerState.isRightDrawerOpen && (
+            <>
+              <HorizontalResizeHandle />
+              <Panel minSize={1} defaultSize={15}>
+                <RightDrawer style={layoutConfig?.components?.styles?.RightDrawer} data-name="RightDrawer">
+                  {renderSection(layoutConfig?.components, 'RightDrawer')}
+                </RightDrawer>
+              </Panel>
+            </>
+          )}
+        </PanelGroup>
+      </StyledMain>
 
-                    {/* Right drawer section */}
-                    {drawerState.isRightDrawerOpen && (
-                      <Panel minSize={1} defaultSize={15}>
-                          <RightDrawer style={layoutConfig?.components?.styles?.RightDrawer} data-name="RightDrawer">
-                              {renderSection(layoutConfig?.components, 'RightDrawer')}
-                          </RightDrawer>
-                      </Panel>
-                    )}
-                </PanelGroup>
-            </StyledMain>
-
-            {/* Footer section */}
-            <StyledFooter style={layoutConfig?.components?.styles?.Footer}>
-                {renderSection(layoutConfig?.components, 'Footer')}
-            </StyledFooter>
-        </StyledContainer>
-    );
+      <StyledFooter style={layoutConfig?.components?.styles?.Footer}>
+        {renderSection(layoutConfig?.components, 'Footer')}
+      </StyledFooter>
+    </StyledContainer>
+  );
 }
 
 export default Layout;
