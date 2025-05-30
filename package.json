@@ -1,0 +1,66 @@
+{
+  "name": "project-files",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "src/main/main.js",
+  "scripts": {
+    "dev": "vite",
+    "dev:electron": "concurrently \"npm run dev\" \"npx electron .\"",
+    "build": "tsc -b && vite build && electron-builder",
+    "build:vite": "tsc -b && vite build",
+    "start": "npm run build:vite && electron .",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "rebuild": "electron-rebuild -f -w better-sqlite3"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "electron-is-dev": "^3.0.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "styled-components": "^6.1.18"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.25.0",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@types/styled-components": "^5.1.34",
+    "@vitejs/plugin-react": "^4.4.1",
+    "concurrently": "^8.2.2",
+    "electron": "^36.3.1",
+    "electron-builder": "^25.1.8",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "vite": "^6.3.5"
+  },
+  "build": {
+    "appId": "com.example.datasetpreparer",
+    "productName": "Dataset Preparer",
+    "files": [
+      "dist/",
+      "electron/main.js",
+      "electron/preload.js",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "assets",
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}

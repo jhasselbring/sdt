@@ -1,0 +1,103 @@
+// Header.jsx
+// This file defines the top menu/header bar for the application, styled to look like a classic app menu bar.
+// It uses styled-components for styling and supports a logo, app name, and menu items.
+
+import React from 'react';
+import styled from 'styled-components';
+import theme from '../theme';
+import Logo from '../assets/react.svg';
+
+// Styled container for the header bar
+const HeaderContainer = styled.header`
+  display: flex;
+  align-items: center;
+  background: transparent;
+  color: #e0e0e0;
+  height: 32px;
+  padding: 0 20px;
+  user-select: none;
+  box-shadow: none;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+`;
+
+// Container for the logo and app name
+const LogoContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 20px;
+`;
+
+// Logo image styling
+const LogoImg = styled.img`
+  height: 18px;
+  width: 18px;
+  filter: drop-shadow(0 0 2px #0008);
+`;
+
+// App name styling
+const AppName = styled.span`
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: ${theme.fonts.main};
+  color: #e0e0e0;
+  letter-spacing: 0.5px;
+`;
+
+// Menu bar container for menu items
+const MenuBar = styled.nav`
+  display: flex;
+  align-items: center;
+  gap: 22px;
+`;
+
+// Individual menu item styling
+const MenuItem = styled.span`
+  color: #e0e0e0;
+  font-size: 0.98rem;
+  font-family: ${theme.fonts.main};
+  padding: 3px 12px 4px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  &:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+  }
+  &:active {
+    background: rgba(255,255,255,0.16);
+    color: #fff;
+  }
+`;
+
+// List of menu items to display in the header
+const menuItems = [
+  'File',
+  'Edit',
+  'Selection',
+  'View',
+  'Go',
+  'Run',
+  'Terminal',
+  'Help',
+];
+
+/**
+ * Header component for the app.
+ * Displays the app logo, name, and a row of menu items.
+ */
+export default function Header() {
+  return (
+    <HeaderContainer>
+      <LogoContainer>
+        <LogoImg src={Logo} alt="App Logo" />
+        <AppName>SDT</AppName>
+      </LogoContainer>
+      <MenuBar>
+        {menuItems.map((item) => (
+          <MenuItem key={item}>{item}</MenuItem>
+        ))}
+      </MenuBar>
+    </HeaderContainer>
+  );
+}
