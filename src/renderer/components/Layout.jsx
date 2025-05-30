@@ -158,6 +158,7 @@ function Layout({
                 order={1}
                 collapsible={true}
                 collapsedSize={0}
+                data-name="LeftDrawerPanel"
               >
                 <LeftDrawer style={layoutConfig?.components?.styles?.LeftDrawer} data-name="LeftDrawer">
                   {renderSection(layoutConfig?.components, 'LeftDrawer')}
@@ -204,6 +205,7 @@ function Layout({
                 order={3}
                 collapsible={true}
                 collapsedSize={0}
+                data-name="RightDrawerPanel"
               >
                 <RightDrawer style={layoutConfig?.components?.styles?.RightDrawer} data-name="RightDrawer">
                   {renderSection(layoutConfig?.components, 'RightDrawer')}
