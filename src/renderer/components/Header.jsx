@@ -6,6 +6,7 @@ import React from 'react';
 import styled from 'styled-components';
 import theme from '../theme';
 import Logo from '../assets/react.svg';
+import { useAppContext } from '../context/AppContext.jsx';
 
 // Styled container for the header bar
 const HeaderContainer = styled.header`
@@ -87,6 +88,12 @@ const menuItems = [
  * Displays the app logo, name, and a row of menu items.
  */
 export default function Header() {
+  const {
+    state,
+    toggleLeftDrawer,
+    toggleRightDrawer,
+    toggleConsole
+  } = useAppContext();
   return (
     <HeaderContainer>
       <LogoContainer>
@@ -98,6 +105,11 @@ export default function Header() {
           <MenuItem key={item}>{item}</MenuItem>
         ))}
       </MenuBar>
+      <div>
+        <button onClick={toggleLeftDrawer}>Toggle LeftDrawer</button>
+        <button onClick={toggleConsole}>Toggle Console</button>
+        <button onClick={toggleRightDrawer}>Toggle RightDrawer</button>
+      </div>
     </HeaderContainer>
   );
 }
