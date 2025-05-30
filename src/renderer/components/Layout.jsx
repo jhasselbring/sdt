@@ -152,7 +152,13 @@ function Layout({
         <PanelGroup direction="horizontal" autoSaveId="main-panels" onLayout={handleSaveLayout}>
           {drawerState.isLeftDrawerOpen && (
             <>
-              <Panel minSize={1} defaultSize={15} order={1}>
+              <Panel
+                minSize={1}
+                defaultSize={15}
+                order={1}
+                collapsible={true}
+                collapsedSize={0}
+              >
                 <LeftDrawer style={layoutConfig?.components?.styles?.LeftDrawer} data-name="LeftDrawer">
                   {renderSection(layoutConfig?.components, 'LeftDrawer')}
                 </LeftDrawer>
@@ -192,7 +198,13 @@ function Layout({
           {drawerState.isRightDrawerOpen && (
             <>
               <HorizontalResizeHandle />
-              <Panel minSize={1} defaultSize={15} order={3}>
+              <Panel
+                minSize={1}
+                defaultSize={15}
+                order={3}
+                collapsible={true}
+                collapsedSize={0}
+              >
                 <RightDrawer style={layoutConfig?.components?.styles?.RightDrawer} data-name="RightDrawer">
                   {renderSection(layoutConfig?.components, 'RightDrawer')}
                 </RightDrawer>
