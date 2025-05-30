@@ -23,17 +23,19 @@ if (process.platform === 'win32') {
   app.setAppUserModelId('com.example.datasetpreparer');
 }
 
+let mainWindowRef;
 const createWindow = async () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    frame: false,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.mjs'), // Vite will output preload.mjs here
+      preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
-      nodeIntegration: false,
     },
   });
+  mainWindowRef = mainWindow;
 
   // Load the index.html of the app.
   if (isDev) {
@@ -90,6 +92,24 @@ ipcMain.handle('db:all', async (_, sql, params) => {
     console.error('Database all error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return { success: false, error: errorMessage };
+  }
+});
+
+// Window control IPC handlers
+ipcMain.on('window:minimize', () => {
+  console.log('window:minimize received');
+  if (mainWindowRef) {
+    mainWindowRef.minimize();
+  } else {
+    console.log('mainWindowRef is undefined');
+  }
+});
+ipcMain.on('window:close', () => {
+  console.log('window:close received');
+  if (mainWindowRef) {
+    mainWindowRef.close();
+  } else {
+    console.log('mainWindowRef is undefined');
   }
 });
 
