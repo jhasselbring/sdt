@@ -9,6 +9,8 @@ import {
     Panel,
     PanelResizeHandle,
 } from 'react-resizable-panels';
+// Import AppContext
+import { useAppContext } from '../context/AppContext';
 
 // Layout constants for sizing and colors
 const headerHeight = 56;
@@ -139,10 +141,20 @@ function Layout({ layoutConfig = {} }) {
         localStorage.setItem(storageKey, JSON.stringify(sizes));
     };
 
+    // Use context for toggling drawers/console
+    const { state, toggleLeftDrawer, toggleRightDrawer, toggleConsole } = useAppContext();
+    const drawerState = state.componentSections.state;
+
     return (
         <StyledContainer style={layoutConfig?.components?.styles?.Container} data-name="Container">
             {/* Header section, with optional custom styles */}
             <StyledHeader style={layoutConfig?.components?.styles?.Header} data-name="Header">
+                {/* Demo toggle buttons */}
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button onClick={toggleLeftDrawer}>Toggle LeftDrawer</button>
+                  <button onClick={toggleConsole}>Toggle Console</button>
+                  <button onClick={toggleRightDrawer}>Toggle RightDrawer</button>
+                </div>
                 {renderSection(layoutConfig?.components, 'Header')}
             </StyledHeader>
 
@@ -158,13 +170,15 @@ function Layout({ layoutConfig = {} }) {
                     onLayout={handleSaveLayout}
                 >
                     {/* Left drawer section */}
-                    <Panel minSize={1} defaultSize={15}>
-                        <LeftDrawer style={layoutConfig?.components?.styles?.LeftDrawer} data-name="LeftDrawer">
-                            {renderSection(layoutConfig?.components, 'LeftDrawer')}
-                        </LeftDrawer>
-                    </Panel>
+                    {drawerState.isLeftDrawerOpen && (
+                      <Panel minSize={1} defaultSize={15}>
+                          <LeftDrawer style={layoutConfig?.components?.styles?.LeftDrawer} data-name="LeftDrawer">
+                              {renderSection(layoutConfig?.components, 'LeftDrawer')}
+                          </LeftDrawer>
+                      </Panel>
+                    )}
 
-                    <HorizontalResizeHandle />
+                    {drawerState.isLeftDrawerOpen && <HorizontalResizeHandle />}
 
                     {/* Editor and console panels */}
                     <Panel minSize={1}>
@@ -175,25 +189,28 @@ function Layout({ layoutConfig = {} }) {
                                         {renderSection(layoutConfig?.components, 'Editor')}
                                     </EditorPanel>
                                 </Panel>
-                                <VerticalResizeHandle />
-                                <Panel minSize={10}>
-                                    <ConsolePanel id="console" className="console-area" style={layoutConfig?.components?.styles?.ConsolePanel} data-name="ConsolePanel">
-                                        {renderSection(layoutConfig?.components, 'ConsolePanel')}
-                                    </ConsolePanel>
-
-                                </Panel>
+                                {drawerState.isConsoleOpen && <VerticalResizeHandle />}
+                                {drawerState.isConsoleOpen && (
+                                  <Panel minSize={10}>
+                                      <ConsolePanel id="console" className="console-area" style={layoutConfig?.components?.styles?.ConsolePanel} data-name="ConsolePanel">
+                                          {renderSection(layoutConfig?.components, 'ConsolePanel')}
+                                      </ConsolePanel>
+                                  </Panel>
+                                )}
                             </PanelGroup>
                         </EditorArea>
                     </Panel>
 
-                    <HorizontalResizeHandle />
+                    {drawerState.isRightDrawerOpen && <HorizontalResizeHandle />}
 
                     {/* Right drawer section */}
-                    <Panel minSize={1} defaultSize={15}>
-                        <RightDrawer style={layoutConfig?.components?.styles?.RightDrawer} data-name="RightDrawer">
-                            {renderSection(layoutConfig?.components, 'RightDrawer')}
-                        </RightDrawer>
-                    </Panel>
+                    {drawerState.isRightDrawerOpen && (
+                      <Panel minSize={1} defaultSize={15}>
+                          <RightDrawer style={layoutConfig?.components?.styles?.RightDrawer} data-name="RightDrawer">
+                              {renderSection(layoutConfig?.components, 'RightDrawer')}
+                          </RightDrawer>
+                      </Panel>
+                    )}
                 </PanelGroup>
             </StyledMain>
 

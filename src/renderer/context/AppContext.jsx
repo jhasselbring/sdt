@@ -27,6 +27,11 @@ const initialState = {
         lineHeight: '16px',
         padding: '0',
       }
+    },
+    state:{
+      isLeftDrawerOpen: true,
+      isRightDrawerOpen: false,
+      isConsoleOpen: false,
     }
   },
   project: null, // e.g., { name: '', outputDir: '', ... }
@@ -44,8 +49,53 @@ export function AppProvider({ children }) {
   // Example: function to update user
   const setUser = (user) => setState((s) => ({ ...s, user }));
 
+  // Toggle functions for drawers and console
+  const toggleLeftDrawer = () =>
+    setState((s) => ({
+      ...s,
+      componentSections: {
+        ...s.componentSections,
+        state: {
+          ...s.componentSections.state,
+          isLeftDrawerOpen: !s.componentSections.state.isLeftDrawerOpen,
+        },
+      },
+    }));
+
+  const toggleRightDrawer = () =>
+    setState((s) => ({
+      ...s,
+      componentSections: {
+        ...s.componentSections,
+        state: {
+          ...s.componentSections.state,
+          isRightDrawerOpen: !s.componentSections.state.isRightDrawerOpen,
+        },
+      },
+    }));
+
+  const toggleConsole = () =>
+    setState((s) => ({
+      ...s,
+      componentSections: {
+        ...s.componentSections,
+        state: {
+          ...s.componentSections.state,
+          isConsoleOpen: !s.componentSections.state.isConsoleOpen,
+        },
+      },
+    }));
+
   return (
-    <AppContext.Provider value={{ state, setState, setProject, setUser }}>
+    <AppContext.Provider value={{
+      state,
+      setState,
+      setProject,
+      setUser,
+      toggleLeftDrawer,
+      toggleRightDrawer,
+      toggleConsole,
+    }}>
       {children}
     </AppContext.Provider>
   );
