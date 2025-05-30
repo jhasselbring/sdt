@@ -83,6 +83,43 @@ const menuItems = [
   'Help',
 ];
 
+// Add SVG icon components for toggles (matching screenshot style)
+const LeftDrawerIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <rect x="3" y="4" width="18" height="16" rx="2" fill="#a09ba8"/>
+    <rect x="5" y="6" width="4" height="12" rx="1" fill="#231c2b"/>
+  </svg>
+);
+const ConsoleIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <rect x="3" y="4" width="18" height="16" rx="2" fill="#a09ba8"/>
+    <rect x="5" y="14" width="14" height="4" rx="1" fill="#231c2b"/>
+  </svg>
+);
+const RightDrawerIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <rect x="3" y="4" width="18" height="16" rx="2" fill="#a09ba8"/>
+    <rect x="15" y="6" width="4" height="12" rx="1" fill="#231c2b"/>
+  </svg>
+);
+
+// Styled icon button
+const IconButton = styled.button`
+  background: none;
+  border: none;
+  padding: 6px;
+  margin-left: 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.18s;
+  &:hover, &:focus {
+    background: rgba(255,255,255,0.08);
+    outline: none;
+  }
+`;
+
 /**
  * Header component for the app.
  * Displays the app logo, name, and a row of menu items.
@@ -106,9 +143,15 @@ export default function Header() {
         ))}
       </MenuBar>
       <div>
-        <button onClick={toggleLeftDrawer}>Toggle LeftDrawer</button>
-        <button onClick={toggleConsole}>Toggle Console</button>
-        <button onClick={toggleRightDrawer}>Toggle RightDrawer</button>
+        <IconButton onClick={toggleLeftDrawer} title="Toggle Left Drawer" aria-label="Toggle Left Drawer">
+          <LeftDrawerIcon />
+        </IconButton>
+        <IconButton onClick={toggleConsole} title="Toggle Console" aria-label="Toggle Console">
+          <ConsoleIcon />
+        </IconButton>
+        <IconButton onClick={toggleRightDrawer} title="Toggle Right Drawer" aria-label="Toggle Right Drawer">
+          <RightDrawerIcon />
+        </IconButton>
       </div>
     </HeaderContainer>
   );
