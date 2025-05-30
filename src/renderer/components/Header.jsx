@@ -111,6 +111,11 @@ const MinimizeIcon = () => (
     <rect x="6" y="12" width="12" height="2" rx="1" fill="#a09ba8" />
   </svg>
 );
+const MaximizeIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <rect x="5" y="5" width="14" height="14" rx="2" fill="#a09ba8" />
+  </svg>
+);
 const CloseIcon = () => (
   <svg width="32" height="22" viewBox="0 0 32 22" fill="none">
     <rect x="0" y="0" width="32" height="22" rx="0" fill="#e11d2b" />
@@ -197,6 +202,11 @@ export default function Header() {
           window.electronAPI?.window?.minimize?.();
         }}>
           <MinimizeIcon />
+        </WindowButton>
+        <WindowButton title="Maximize" aria-label="Maximize" onClick={() => {
+          window.electronAPI?.window?.maximize?.();
+        }}>
+          <MaximizeIcon />
         </WindowButton>
         <WindowButton title="Close" aria-label="Close" onClick={() => {
           window.electronAPI?.window?.close?.();

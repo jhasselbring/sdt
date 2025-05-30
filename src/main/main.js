@@ -141,6 +141,19 @@ ipcMain.on('window:close', () => {
   }
 });
 
+ipcMain.on('window:maximize', () => {
+  console.log('window:maximize received');
+  if (mainWindowRef) {
+    if (mainWindowRef.isMaximized()) {
+      mainWindowRef.unmaximize();
+    } else {
+      mainWindowRef.maximize();
+    }
+  } else {
+    console.log('mainWindowRef is undefined');
+  }
+});
+
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
   app.quit();
