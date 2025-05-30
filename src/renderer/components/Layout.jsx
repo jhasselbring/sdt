@@ -118,7 +118,7 @@ function renderSection(components, section) {
  */
 function Layout({
   layoutConfig = {},
-  drawerState = { isLeftDrawerOpen: false, isRightDrawerOpen: false, isConsoleOpen: false }
+  drawerState = {  }
 }) {
   const [defaultLayout, setDefaultLayout] = useState(undefined);
   const storageKey = 'editor-panel-layout';
@@ -149,7 +149,7 @@ function Layout({
           {renderSection(layoutConfig?.components, 'Nav')}
         </StyledNav>
 
-        <PanelGroup direction="horizontal" autoSaveId="main-panels" onLayout={handleSaveLayout}>
+        <PanelGroup direction="horizontal" autoSaveId="main-panels" onLayout={handleSaveLayout} data-name="MainPanelGroup">
           {drawerState.isLeftDrawerOpen && (
             <>
               <Panel
@@ -214,7 +214,7 @@ function Layout({
         </PanelGroup>
       </StyledMain>
 
-      <StyledFooter style={layoutConfig?.components?.styles?.Footer}>
+      <StyledFooter style={layoutConfig?.components?.styles?.Footer} data-name="Footer">
         {renderSection(layoutConfig?.components, 'Footer')}
       </StyledFooter>
     </StyledContainer>
