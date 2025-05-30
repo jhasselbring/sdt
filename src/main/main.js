@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'url';
 import { initializeDatabase, run, get, all, closeDb } from './database.js';
 import isDev from 'electron-is-dev';
+import fs from 'node:fs';
 
 const checkSquirrelStartup = async () => {
   try {
@@ -24,11 +25,36 @@ if (process.platform === 'win32') {
 }
 
 let mainWindowRef;
+const windowStatePath = path.join(app.getPath('userData'), 'window-state.json');
+
+function loadWindowState() {
+  try {
+    if (fs.existsSync(windowStatePath)) {
+      return JSON.parse(fs.readFileSync(windowStatePath, 'utf8'));
+    }
+  } catch (e) {
+    console.error('Failed to load window state:', e);
+  }
+  return { width: 800, height: 600 };
+}
+
+function saveWindowState(win) {
+  if (!win) return;
+  const bounds = win.getBounds();
+  try {
+    fs.writeFileSync(windowStatePath, JSON.stringify(bounds));
+  } catch (e) {
+    console.error('Failed to save window state:', e);
+  }
+}
+
 const createWindow = async () => {
-  // Create the browser window.
+  const state = loadWindowState();
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: state.width || 800,
+    height: state.height || 600,
+    x: state.x,
+    y: state.y,
     frame: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -36,6 +62,8 @@ const createWindow = async () => {
     },
   });
   mainWindowRef = mainWindow;
+
+  mainWindow.on('close', () => saveWindowState(mainWindow));
 
   // Load the index.html of the app.
   if (isDev) {
@@ -113,13 +141,9 @@ ipcMain.on('window:close', () => {
   }
 });
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
+// Quit when all windows are closed.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  app.quit();
 });
 
 app.on('activate', () => {
