@@ -123,6 +123,12 @@ const Layout2 = ({
     return 70;
   });
 
+  // Effect to log whenever isPrimaryDrawerOpen updates
+  useEffect(() => {
+    console.log('isPrimaryDrawerOpen updated:', drawerState.isPrimaryDrawerOpen);
+    // You can call other functions here as needed
+  }, [drawerState.isPrimaryDrawerOpen]);
+
   // Set explicit heights on editor-window and console-window refs after render
   useEffect(() => {
     if (editorsRef.current && editorWindowRef.current && consoleWindowRef.current) {
