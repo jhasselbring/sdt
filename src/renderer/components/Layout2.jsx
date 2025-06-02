@@ -41,7 +41,7 @@ const StyledMain = styled.main`
       overflow: hidden;
     }
 
-    editors {
+    editors-container {
       flex: 1;
       height: 100%;
       background-color: pink;
@@ -249,7 +249,7 @@ const Layout2 = ({
             {renderSection(layoutConfig?.components, 'PrimaryDrawer')}
           </primary-drawer>
           <div className="resizer" data-position="left" />
-          <editors ref={editorsRef}>
+          <editors-container ref={editorsRef}>
             <editor-window ref={editorWindowRef}>
               {renderSection(layoutConfig?.components, 'EditorWindow')}
             </editor-window>
@@ -257,7 +257,7 @@ const Layout2 = ({
             <console-window ref={consoleWindowRef}>
               {renderSection(layoutConfig?.components, 'ConsoleWindow')}
             </console-window>
-          </editors>
+          </editors-container>
           <div className="resizer" data-position="right" />
           <secondary-drawer
             ref={secondaryDrawerRef}
