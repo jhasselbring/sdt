@@ -45,6 +45,34 @@ const StyledMain = styled.main`
       flex: 1;
       height: 100%;
       background-color: pink;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+
+      editor-window {
+        height: var(--editor-height, 70%);
+        min-height: 100px;
+        background-color: #ffaaaa;
+        overflow: auto;
+      }
+
+      .horizontal-resizer {
+        height: 5px;
+        background: rgba(255, 255, 255, 0.3);
+        cursor: row-resize;
+        z-index: 1;
+      }
+
+      .horizontal-resizer:hover {
+        background: rgba(255, 255, 255, 0.6);
+      }
+
+      console-window {
+        flex: 1;
+        min-height: 50px;
+        background-color: #aaaaff;
+        overflow: auto;
+      }
     }
 
     .resizer {
@@ -75,18 +103,25 @@ const Layout2 = ({
   const primaryDrawerRef = useRef(null);
   const secondaryDrawerRef = useRef(null);
   const editorGroupRef = useRef(null);
+  const editorsRef = useRef(null);
 
   const [drawerWidths, setDrawerWidths] = useState(() => ({
     left: parseInt(localStorage.getItem('layout2-primary-drawer-width') || '200', 10),
     right: parseInt(localStorage.getItem('layout2-secondary-drawer-width') || '200', 10),
   }));
 
+  const [editorHeightPercent, setEditorHeightPercent] = useState(() =>
+    parseInt(localStorage.getItem('layout2-editor-height-percent') || '70', 10)
+  );
+
   useEffect(() => {
     const editorGroup = editorGroupRef.current;
-    if (!editorGroup) return;
+    const editorsContainer = editorsRef.current;
+    if (!editorGroup || !editorsContainer) return;
 
     const leftResizer = editorGroup.querySelector('.resizer[data-position="left"]');
     const rightResizer = editorGroup.querySelector('.resizer[data-position="right"]');
+    const horizontalResizer = editorsContainer.querySelector('.horizontal-resizer');
 
     const createMouseDownHandler = (direction) => (e) => {
       e.preventDefault();
@@ -122,12 +157,47 @@ const Layout2 = ({
       document.addEventListener('mouseup', onMouseUp);
     };
 
+    const handleHorizontalResize = (e) => {
+      e.preventDefault();
+      const container = editorsContainer;
+      const totalHeight = container.clientHeight;
+      const startY = e.clientY;
+      const editorWindow = container.querySelector('editor-window');
+      const startHeight = editorWindow.offsetHeight;
+
+      const onMouseMove = (e) => {
+        const dy = e.clientY - startY;
+        const newHeight = Math.min(totalHeight - 50, Math.max(100, startHeight + dy));
+        const percent = (newHeight / totalHeight) * 100;
+        container.style.setProperty('--editor-height', `${percent}%`);
+      };
+
+      const onMouseUp = (e) => {
+        const dy = e.clientY - startY;
+        const newHeight = Math.min(totalHeight - 50, Math.max(100, startHeight + dy));
+        const percent = (newHeight / totalHeight) * 100;
+        localStorage.setItem('layout2-editor-height-percent', percent.toString());
+        setEditorHeightPercent(percent);
+
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+      };
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    };
+
     leftResizer?.addEventListener('mousedown', createMouseDownHandler('left'));
     rightResizer?.addEventListener('mousedown', createMouseDownHandler('right'));
+    horizontalResizer?.addEventListener('mousedown', handleHorizontalResize);
+
+    // Set initial editor height CSS variable
+    editorsContainer.style.setProperty('--editor-height', `${editorHeightPercent}%`);
 
     return () => {
       leftResizer?.removeEventListener('mousedown', createMouseDownHandler('left'));
       rightResizer?.removeEventListener('mousedown', createMouseDownHandler('right'));
+      horizontalResizer?.removeEventListener('mousedown', handleHorizontalResize);
     };
   }, []);
 
@@ -146,7 +216,15 @@ const Layout2 = ({
             {renderSection(layoutConfig?.components, 'PrimaryDrawer')}
           </primary-drawer>
           <div className="resizer" data-position="left" />
-          <editors>{renderSection(layoutConfig?.components, 'Editors')}</editors>
+          <editors ref={editorsRef}>
+            <editor-window>
+              {renderSection(layoutConfig?.components, 'EditorWindow')}
+            </editor-window>
+            <div className="horizontal-resizer" />
+            <console-window>
+              {renderSection(layoutConfig?.components, 'ConsoleWindow')}
+            </console-window>
+          </editors>
           <div className="resizer" data-position="right" />
           <secondary-drawer
             ref={secondaryDrawerRef}
