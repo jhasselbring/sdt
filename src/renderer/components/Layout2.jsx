@@ -193,26 +193,27 @@ const Layout2 = ({
       const startY = e.clientY;
       const startEditorHeight = editorWindowRef.current.offsetHeight;
 
+      // Keep track of height percent locally during drag
+      let newEditorHeightPercent = editorHeightPercent;
+
       const onMouseMove = (e) => {
         const dy = e.clientY - startY;
         let newEditorHeight = startEditorHeight + dy;
 
-        // Clamp height between 10px minimum and totalHeight - 10px max
+        // Clamp height between 0 and totalHeight
         newEditorHeight = Math.max(0, Math.min(newEditorHeight, totalHeight));
 
-        const newEditorHeightPercent = (newEditorHeight / totalHeight) * 100;
+        newEditorHeightPercent = (newEditorHeight / totalHeight) * 100;
 
-        // Update state for controlled height & trigger re-render
         setEditorHeightPercent(newEditorHeightPercent);
 
-        // Set explicit heights during drag for immediate feedback
         editorWindowRef.current.style.height = `${newEditorHeight}px`;
         consoleWindowRef.current.style.height = `${totalHeight - newEditorHeight}px`;
       };
 
       const onMouseUp = (e) => {
-        // Persist final size in localStorage
-        localStorage.setItem('layout2-editor-height-percent', editorHeightPercent.toString());
+        // Persist final size in localStorage from local variable, not state
+        localStorage.setItem('layout2-editor-height-percent', newEditorHeightPercent.toString());
 
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
