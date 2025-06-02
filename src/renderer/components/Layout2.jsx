@@ -15,6 +15,7 @@ padding: 0;
 box-sizing: border-box;
 overflow: hidden;
 display: flex;
+
 nav{
   margin: 0;
   padding: 0;
@@ -23,6 +24,7 @@ nav{
   width: 50px;
   height: 100%;
 }
+
 editor-group{
   flex: 1;
   height: 100%;
@@ -31,6 +33,7 @@ editor-group{
   width: 100%;
   height: 100%;
   overflow: hidden;
+
   primary-drawer,
   secondary-drawer {
     resize: horizontal;
@@ -39,11 +42,12 @@ editor-group{
     height: 100%;
     overflow: hidden;
   }
-    editors{
-      flex: 1;
-      height: 100%;
-      background-color: pink;
-    }
+
+  editors{
+    flex: 1;
+    height: 100%;
+    background-color: pink;
+  }
 }`;
 const StyledFooter = styled.footer`
 height: 30px;
