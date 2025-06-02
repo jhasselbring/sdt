@@ -51,7 +51,6 @@ const StyledMain = styled.main`
 
       editor-window {
         height: var(--editor-height, 70%);
-        min-height: 100px;
         background-color: #ffaaaa;
         overflow: auto;
       }
@@ -69,7 +68,6 @@ const StyledMain = styled.main`
 
       console-window {
         flex: 1;
-        min-height: 50px;
         background-color: #aaaaff;
         overflow: auto;
       }
@@ -105,14 +103,33 @@ const Layout2 = ({
   const editorGroupRef = useRef(null);
   const editorsRef = useRef(null);
 
+  // Initialize drawer widths from localStorage or default 200px
   const [drawerWidths, setDrawerWidths] = useState(() => ({
     left: parseInt(localStorage.getItem('layout2-primary-drawer-width') || '200', 10),
     right: parseInt(localStorage.getItem('layout2-secondary-drawer-width') || '200', 10),
   }));
 
-  const [editorHeightPercent, setEditorHeightPercent] = useState(() =>
-    parseInt(localStorage.getItem('layout2-editor-height-percent') || '70', 10)
-  );
+  // Read editor height % from localStorage synchronously for initial render
+  const initialEditorHeightPercent = (() => {
+    const stored = localStorage.getItem('layout2-editor-height-percent');
+    if (stored) {
+      const val = parseFloat(stored);
+      if (!isNaN(val)) return val;
+    }
+    return 70; // default 70%
+  })();
+
+  // State for editor height %, initialized from localStorage
+  const [editorHeightPercent, setEditorHeightPercent] = useState(initialEditorHeightPercent);
+
+  // Immediately apply CSS variable inline during render to avoid flicker
+  // This is done in the ref callback so that style is set before paint
+  const setEditorsRef = (node) => {
+    if (node) {
+      node.style.setProperty('--editor-height', `${initialEditorHeightPercent}%`);
+      editorsRef.current = node;
+    }
+  };
 
   useEffect(() => {
     const editorGroup = editorGroupRef.current;
@@ -133,13 +150,14 @@ const Layout2 = ({
       const onMouseMove = (e) => {
         const dx = e.clientX - startX;
         const newWidth = isLeft ? startWidth + dx : startWidth - dx;
-        drawer.style.width = `${Math.max(100, newWidth)}px`;
+        // Removed min width of 100px to allow complete collapse
+        drawer.style.width = `${Math.max(0, newWidth)}px`;
       };
 
       const onMouseUp = (e) => {
         const dx = e.clientX - startX;
         const newWidth = isLeft ? startWidth + dx : startWidth - dx;
-        const width = Math.max(100, newWidth);
+        const width = Math.max(0, newWidth);
 
         const key = isLeft ? 'layout2-primary-drawer-width' : 'layout2-secondary-drawer-width';
         localStorage.setItem(key, width.toString());
@@ -167,14 +185,15 @@ const Layout2 = ({
 
       const onMouseMove = (e) => {
         const dy = e.clientY - startY;
-        const newHeight = Math.min(totalHeight - 50, Math.max(100, startHeight + dy));
+        // Removed min height 100px, allowed min 0
+        const newHeight = Math.min(totalHeight - 10, Math.max(0, startHeight + dy));
         const percent = (newHeight / totalHeight) * 100;
         container.style.setProperty('--editor-height', `${percent}%`);
       };
 
       const onMouseUp = (e) => {
         const dy = e.clientY - startY;
-        const newHeight = Math.min(totalHeight - 50, Math.max(100, startHeight + dy));
+        const newHeight = Math.min(totalHeight - 10, Math.max(0, startHeight + dy));
         const percent = (newHeight / totalHeight) * 100;
         localStorage.setItem('layout2-editor-height-percent', percent.toString());
         setEditorHeightPercent(percent);
@@ -191,7 +210,7 @@ const Layout2 = ({
     rightResizer?.addEventListener('mousedown', createMouseDownHandler('right'));
     horizontalResizer?.addEventListener('mousedown', handleHorizontalResize);
 
-    // Set initial editor height CSS variable
+    // Sync CSS var with current editorHeightPercent state (in case updated later)
     editorsContainer.style.setProperty('--editor-height', `${editorHeightPercent}%`);
 
     return () => {
@@ -199,7 +218,7 @@ const Layout2 = ({
       rightResizer?.removeEventListener('mousedown', createMouseDownHandler('right'));
       horizontalResizer?.removeEventListener('mousedown', handleHorizontalResize);
     };
-  }, []);
+  }, [editorHeightPercent]);
 
   return (
     <>
@@ -216,7 +235,7 @@ const Layout2 = ({
             {renderSection(layoutConfig?.components, 'PrimaryDrawer')}
           </primary-drawer>
           <div className="resizer" data-position="left" />
-          <editors ref={editorsRef}>
+          <editors ref={setEditorsRef}>
             <editor-window>
               {renderSection(layoutConfig?.components, 'EditorWindow')}
             </editor-window>
@@ -248,7 +267,7 @@ function renderSection(components, section) {
   const sectionStyles = components?.styles?.[section];
   if (!SectionComponent) {
     return (
-      <div style={{ color: 'white', padding: '0' }}>
+      <div style={{ color: 'white', padding: 0 }}>
         Please provide <code>components.{section}</code> to customize this component to the Layout component.
       </div>
     );
