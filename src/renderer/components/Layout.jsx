@@ -41,13 +41,13 @@ function renderSection(components, section) {
  * Layout Component
  * @param layoutConfig - object containing custom components and styles
  * @param drawerState - object with booleans for leftDrawer, rightDrawer, and console visibility
- * @param onToggleLeftDrawer - toggle callback
- * @param onToggleRightDrawer - toggle callback
+ * @param onTogglePrimaryDrawer - toggle callback
+ * @param onToggleSecondaryDrawer - toggle callback
  * @param onToggleConsole - toggle callback
  */
 function Layout({
   layoutConfig = {},
-  drawerState = { isLeftDrawerOpen: false, isRightDrawerOpen: false, isConsoleOpen: false }
+  drawerState = { isPrimaryDrawerOpen: false, isSecondaryDrawerOpen: false, isConsoleOpen: false }
 }) {
   const [defaultLayout, setDefaultLayout] = useState(undefined);
   const storageKey = 'editor-panel-layout';
@@ -75,7 +75,7 @@ function Layout({
         <StyledNav style={layoutConfig?.components?.styles?.Nav} data-name="Nav"> {renderSection(layoutConfig?.components, 'Nav')} </StyledNav>
 
         <PanelGroup direction="horizontal" autoSaveId="main-panels" onLayout={handleSaveLayout} data-name="MainPanelGroup">
-          {drawerState.isLeftDrawerOpen && (
+          {drawerState.isPrimaryDrawerOpen && (
             <>
               <Panel minSize={1} defaultSize={15} order={1} collapsible={true} collapsedSize={0} data-name="LeftDrawerPanel" >
                 <LeftDrawer style={layoutConfig?.components?.styles?.LeftDrawer} data-name="LeftDrawer"> {renderSection(layoutConfig?.components, 'LeftDrawer')} </LeftDrawer>
@@ -110,7 +110,7 @@ function Layout({
             </EditorArea>
           </Panel>
 
-          {drawerState.isRightDrawerOpen && (
+          {drawerState.isSecondaryDrawerOpen && (
             <>
               <HorizontalResizeHandle />
               <Panel minSize={1} defaultSize={15} order={3} collapsible={true} collapsedSize={0} data-name="RightDrawerPanel">

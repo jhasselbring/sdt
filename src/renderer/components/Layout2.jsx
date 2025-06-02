@@ -98,7 +98,7 @@ const StyledFooter = styled.footer`
 
 const Layout2 = ({
   layoutConfig = {},
-  drawerState = { isLeftDrawerOpen: false, isRightDrawerOpen: false, isConsoleOpen: false },
+  drawerState = { isPrimaryDrawerOpen: false, isSecondaryDrawerOpen: false, isConsoleOpen: false },
 }) => {
   const primaryDrawerRef = useRef(null);
   const secondaryDrawerRef = useRef(null);

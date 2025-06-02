@@ -171,8 +171,8 @@ const WindowButton = styled.button`
 function Controls() {
   const {
     state,
-    toggleLeftDrawer,
-    toggleRightDrawer,
+    togglePrimaryDrawer,
+    toggleSecondaryDrawer,
     toggleConsole
   } = useAppContext();
   return (
@@ -183,13 +183,13 @@ function Controls() {
         <ResetIcon />
       </WindowButton>
       <div>
-        <IconButton onClick={toggleLeftDrawer} title="Toggle Left Drawer" aria-label="Toggle Left Drawer">
+        <IconButton onClick={togglePrimaryDrawer} title="Toggle Primary Drawer" aria-label="Toggle Primary Drawer">
           <LeftDrawerIcon />
         </IconButton>
         <IconButton onClick={toggleConsole} title="Toggle Console" aria-label="Toggle Console">
           <ConsoleIcon />
         </IconButton>
-        <IconButton onClick={toggleRightDrawer} title="Toggle Right Drawer" aria-label="Toggle Right Drawer">
+        <IconButton onClick={toggleSecondaryDrawer} title="Toggle Secondary Drawer" aria-label="Toggle Secondary Drawer">
           <RightDrawerIcon />
         </IconButton>
       </div>

@@ -29,8 +29,8 @@ const initialState = {
       }
     },
     state: {
-      isLeftDrawerOpen: true,
-      isRightDrawerOpen: true,
+      isPrimaryDrawerOpen: true,
+      isSecondaryDrawerOpen: true,
       isConsoleOpen: true,
     }
   },
@@ -66,7 +66,7 @@ export function AppProvider({ children }) {
   };
 
   // Toggle functions for drawers and console
-  const toggleLeftDrawer = () =>
+  const togglePrimaryDrawer = () =>
     setState((s) => {
       const before = s;
       const after = {
@@ -75,16 +75,16 @@ export function AppProvider({ children }) {
           ...s.componentSections,
           state: {
             ...s.componentSections.state,
-            isLeftDrawerOpen: !s.componentSections.state.isLeftDrawerOpen,
+            isPrimaryDrawerOpen: !s.componentSections.state.isPrimaryDrawerOpen,
           },
         },
       };
-      console.log('toggleLeftDrawer BEFORE', before);
-      console.log('toggleLeftDrawer AFTER', after);
+      console.log('togglePrimaryDrawer BEFORE', before);
+      console.log('togglePrimaryDrawer AFTER', after);
       return after;
     });
 
-  const toggleRightDrawer = () =>
+  const toggleSecondaryDrawer = () =>
     setState((s) => {
       const before = s;
       const after = {
@@ -93,12 +93,12 @@ export function AppProvider({ children }) {
           ...s.componentSections,
           state: {
             ...s.componentSections.state,
-            isRightDrawerOpen: !s.componentSections.state.isRightDrawerOpen,
+            isSecondaryDrawerOpen: !s.componentSections.state.isSecondaryDrawerOpen,
           },
         },
       };
-      console.log('toggleRightDrawer BEFORE', before);
-      console.log('toggleRightDrawer AFTER', after);
+      console.log('toggleSecondaryDrawer BEFORE', before);
+      console.log('toggleSecondaryDrawer AFTER', after);
       return after;
     });
 
@@ -126,8 +126,8 @@ export function AppProvider({ children }) {
       setState,
       setProject,
       setUser,
-      toggleLeftDrawer,
-      toggleRightDrawer,
+      togglePrimaryDrawer,
+      toggleSecondaryDrawer,
       toggleConsole,
     }}>
       {children}
