@@ -18,12 +18,12 @@ const StyledMain = styled.main`
   display: flex;
 
   nav {
+    width: 50px;
+    height: 100%;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     overflow: hidden;
-    width: 50px;
-    height: 100%;
   }
 
   editor-group {
@@ -50,9 +50,9 @@ const StyledMain = styled.main`
       overflow: hidden;
 
       editor-window {
-        height: var(--editor-height, 70%);
         background-color: #ffaaaa;
         overflow: auto;
+        /* height set dynamically */
       }
 
       .horizontal-resizer {
@@ -60,6 +60,7 @@ const StyledMain = styled.main`
         background: rgba(255, 255, 255, 0.3);
         cursor: row-resize;
         z-index: 1;
+        user-select: none;
       }
 
       .horizontal-resizer:hover {
@@ -67,9 +68,9 @@ const StyledMain = styled.main`
       }
 
       console-window {
-        flex: 1;
         background-color: #aaaaff;
-        overflow: auto;
+        overflow: hidden;
+        /* height set dynamically */
       }
     }
 
@@ -78,6 +79,7 @@ const StyledMain = styled.main`
       background: rgba(255, 255, 255, 0.3);
       cursor: col-resize;
       z-index: 1;
+      user-select: none;
     }
 
     .resizer:hover {
@@ -102,6 +104,8 @@ const Layout2 = ({
   const secondaryDrawerRef = useRef(null);
   const editorGroupRef = useRef(null);
   const editorsRef = useRef(null);
+  const editorWindowRef = useRef(null);
+  const consoleWindowRef = useRef(null);
 
   // Initialize drawer widths from localStorage or default 200px
   const [drawerWidths, setDrawerWidths] = useState(() => ({
@@ -109,37 +113,42 @@ const Layout2 = ({
     right: parseInt(localStorage.getItem('layout2-secondary-drawer-width') || '200', 10),
   }));
 
-  // Read editor height % from localStorage synchronously for initial render
-  const initialEditorHeightPercent = (() => {
+  // Initialize editor window height percentage from localStorage or default 70%
+  const [editorHeightPercent, setEditorHeightPercent] = useState(() => {
     const stored = localStorage.getItem('layout2-editor-height-percent');
     if (stored) {
       const val = parseFloat(stored);
       if (!isNaN(val)) return val;
     }
-    return 70; // default 70%
-  })();
+    return 70;
+  });
 
-  // State for editor height %, initialized from localStorage
-  const [editorHeightPercent, setEditorHeightPercent] = useState(initialEditorHeightPercent);
+  // Set explicit heights on editor-window and console-window refs after render
+  useEffect(() => {
+    if (editorsRef.current && editorWindowRef.current && consoleWindowRef.current) {
+      const totalHeight = editorsRef.current.clientHeight;
+      const editorHeightPx = (editorHeightPercent / 100) * totalHeight;
+      const consoleHeightPx = totalHeight - editorHeightPx;
 
-  // Immediately apply CSS variable inline during render to avoid flicker
-  // This is done in the ref callback so that style is set before paint
-  const setEditorsRef = (node) => {
-    if (node) {
-      node.style.setProperty('--editor-height', `${initialEditorHeightPercent}%`);
-      editorsRef.current = node;
+      editorWindowRef.current.style.height = `${editorHeightPx}px`;
+      consoleWindowRef.current.style.height = `${consoleHeightPx}px`;
     }
-  };
+  }, [editorHeightPercent]);
 
   useEffect(() => {
     const editorGroup = editorGroupRef.current;
     const editorsContainer = editorsRef.current;
+
     if (!editorGroup || !editorsContainer) return;
 
+    // Left and right drawer resizers
     const leftResizer = editorGroup.querySelector('.resizer[data-position="left"]');
     const rightResizer = editorGroup.querySelector('.resizer[data-position="right"]');
+
+    // Horizontal resizer for vertical resizing (editor-console)
     const horizontalResizer = editorsContainer.querySelector('.horizontal-resizer');
 
+    // Helper for drawer resizing (left/right)
     const createMouseDownHandler = (direction) => (e) => {
       e.preventDefault();
       const isLeft = direction === 'left';
@@ -150,7 +159,6 @@ const Layout2 = ({
       const onMouseMove = (e) => {
         const dx = e.clientX - startX;
         const newWidth = isLeft ? startWidth + dx : startWidth - dx;
-        // Removed min width of 100px to allow complete collapse
         drawer.style.width = `${Math.max(0, newWidth)}px`;
       };
 
@@ -175,28 +183,36 @@ const Layout2 = ({
       document.addEventListener('mouseup', onMouseUp);
     };
 
-    const handleHorizontalResize = (e) => {
+    // Mouse down handler for vertical resize between editor and console
+    const onHorizontalResizerMouseDown = (e) => {
       e.preventDefault();
-      const container = editorsContainer;
-      const totalHeight = container.clientHeight;
+
+      if (!editorsContainer || !editorWindowRef.current || !consoleWindowRef.current) return;
+
+      const totalHeight = editorsContainer.clientHeight;
       const startY = e.clientY;
-      const editorWindow = container.querySelector('editor-window');
-      const startHeight = editorWindow.offsetHeight;
+      const startEditorHeight = editorWindowRef.current.offsetHeight;
 
       const onMouseMove = (e) => {
         const dy = e.clientY - startY;
-        // Removed min height 100px, allowed min 0
-        const newHeight = Math.min(totalHeight - 10, Math.max(0, startHeight + dy));
-        const percent = (newHeight / totalHeight) * 100;
-        container.style.setProperty('--editor-height', `${percent}%`);
+        let newEditorHeight = startEditorHeight + dy;
+
+        // Clamp height between 10px minimum and totalHeight - 10px max
+        newEditorHeight = Math.max(0, Math.min(newEditorHeight, totalHeight));
+
+        const newEditorHeightPercent = (newEditorHeight / totalHeight) * 100;
+
+        // Update state for controlled height & trigger re-render
+        setEditorHeightPercent(newEditorHeightPercent);
+
+        // Set explicit heights during drag for immediate feedback
+        editorWindowRef.current.style.height = `${newEditorHeight}px`;
+        consoleWindowRef.current.style.height = `${totalHeight - newEditorHeight}px`;
       };
 
       const onMouseUp = (e) => {
-        const dy = e.clientY - startY;
-        const newHeight = Math.min(totalHeight - 10, Math.max(0, startHeight + dy));
-        const percent = (newHeight / totalHeight) * 100;
-        localStorage.setItem('layout2-editor-height-percent', percent.toString());
-        setEditorHeightPercent(percent);
+        // Persist final size in localStorage
+        localStorage.setItem('layout2-editor-height-percent', editorHeightPercent.toString());
 
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
@@ -208,15 +224,12 @@ const Layout2 = ({
 
     leftResizer?.addEventListener('mousedown', createMouseDownHandler('left'));
     rightResizer?.addEventListener('mousedown', createMouseDownHandler('right'));
-    horizontalResizer?.addEventListener('mousedown', handleHorizontalResize);
-
-    // Sync CSS var with current editorHeightPercent state (in case updated later)
-    editorsContainer.style.setProperty('--editor-height', `${editorHeightPercent}%`);
+    horizontalResizer?.addEventListener('mousedown', onHorizontalResizerMouseDown);
 
     return () => {
       leftResizer?.removeEventListener('mousedown', createMouseDownHandler('left'));
       rightResizer?.removeEventListener('mousedown', createMouseDownHandler('right'));
-      horizontalResizer?.removeEventListener('mousedown', handleHorizontalResize);
+      horizontalResizer?.removeEventListener('mousedown', onHorizontalResizerMouseDown);
     };
   }, [editorHeightPercent]);
 
@@ -235,12 +248,12 @@ const Layout2 = ({
             {renderSection(layoutConfig?.components, 'PrimaryDrawer')}
           </primary-drawer>
           <div className="resizer" data-position="left" />
-          <editors ref={setEditorsRef}>
-            <editor-window>
+          <editors ref={editorsRef}>
+            <editor-window ref={editorWindowRef}>
               {renderSection(layoutConfig?.components, 'EditorWindow')}
             </editor-window>
             <div className="horizontal-resizer" />
-            <console-window>
+            <console-window ref={consoleWindowRef}>
               {renderSection(layoutConfig?.components, 'ConsoleWindow')}
             </console-window>
           </editors>
