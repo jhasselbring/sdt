@@ -251,42 +251,71 @@ const Layout2 = ({
 
   useEffect(() => {
     if (!primaryDrawerRef.current) return;
-  
+
     if (!drawerState.isPrimaryDrawerOpen) {
-      // Collapse
+      // Collapse, but do NOT overwrite stored width
       primaryDrawerRef.current.style.width = '0px';
-      localStorage.setItem('layout2-primary-drawer-width', '0');
       setDrawerWidths((prev) => ({ ...prev, left: 0 }));
     } else {
-      // Restore to previous width (fallback to 200 if current is 0)
+      // Restore to previous width (fallback to 200 if not set)
       const storedWidth = parseInt(localStorage.getItem('layout2-primary-drawer-width') || '200', 10);
       const width = storedWidth > 0 ? storedWidth : 200;
-  
+
       primaryDrawerRef.current.style.width = `${width}px`;
-      localStorage.setItem('layout2-primary-drawer-width', width.toString());
       setDrawerWidths((prev) => ({ ...prev, left: width }));
     }
   }, [drawerState.isPrimaryDrawerOpen]);
 
   useEffect(() => {
-    if (!primaryDrawerRef.current) return;
-  
-    if (!drawerState.isPrimaryDrawerOpen) {
-      // Collapse
-      primaryDrawerRef.current.style.width = '0px';
-      localStorage.setItem('layout2-primary-drawer-width', '0');
-      setDrawerWidths((prev) => ({ ...prev, left: 0 }));
+    if (!secondaryDrawerRef.current) return;
+
+    if (!drawerState.isSecondaryDrawerOpen) {
+      // Collapse, but do NOT overwrite stored width
+      secondaryDrawerRef.current.style.width = '0px';
+      setDrawerWidths((prev) => ({ ...prev, right: 0 }));
     } else {
-      // Restore to previous width (fallback to 200 if current is 0)
-      const storedWidth = parseInt(localStorage.getItem('layout2-primary-drawer-width') || '200', 10);
+      // Restore to previous width (fallback to 200 if not set)
+      const storedWidth = parseInt(localStorage.getItem('layout2-secondary-drawer-width') || '200', 10);
       const width = storedWidth > 0 ? storedWidth : 200;
-  
-      primaryDrawerRef.current.style.width = `${width}px`;
-      localStorage.setItem('layout2-primary-drawer-width', width.toString());
-      setDrawerWidths((prev) => ({ ...prev, left: width }));
+
+      secondaryDrawerRef.current.style.width = `${width}px`;
+      setDrawerWidths((prev) => ({ ...prev, right: width }));
     }
-  }, [drawerState.isPrimaryDrawerOpen]);
+  }, [drawerState.isSecondaryDrawerOpen]);
+
+  useEffect(() => {
+    const editorsEl = editorsRef.current;
+    const editorEl = editorWindowRef.current;
+    const consoleEl = consoleWindowRef.current;
   
+    if (!editorsEl || !editorEl || !consoleEl) return;
+  
+    const editorsHeight = editorsEl.clientHeight;
+  
+    if (!drawerState.isConsoleOpen) {
+      // Collapse console
+      consoleEl.style.height = '0px';
+      editorEl.style.height = `${editorsHeight}px`;
+      // Do NOT overwrite the stored percent!
+      setEditorHeightPercent(100);
+    } else {
+      // Restore previous height percent
+      requestAnimationFrame(() => {
+        // Use the last stored percent, but if it's 100, fallback to 70
+        let storedPercent = parseFloat(localStorage.getItem('layout2-editor-height-percent') || '70');
+        if (storedPercent === 100) storedPercent = 70;
+        const newEditorHeight = (storedPercent / 100) * editorsHeight;
+        const newConsoleHeight = editorsHeight - newEditorHeight;
+  
+        editorEl.style.height = `${newEditorHeight}px`;
+        consoleEl.style.height = `${newConsoleHeight}px`;
+  
+        setEditorHeightPercent(storedPercent);
+      });
+    }
+  }, [drawerState.isConsoleOpen]);
+  
+
   return (
     <>
       <StyledHeader style={layoutConfig?.components?.styles?.Header}>
