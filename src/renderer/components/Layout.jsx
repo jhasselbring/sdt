@@ -3,96 +3,25 @@
 // It uses styled-components for styling and supports dynamic injection of section components and styles via layoutConfig.
 
 import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
 import {
   PanelGroup,
   Panel,
   PanelResizeHandle,
 } from 'react-resizable-panels';
-
-// Layout constants
-const headerHeight = 56;
-const footerHeight = 31;
-const navWidth = 56;
-const mainHeight = `calc(100vh - ${headerHeight}px - ${footerHeight}px)`;
-const appBackgroundColor = '#252a38';
-const appSectionBackgroundColor = '#171b26';
-
-// Styled layout containers
-const StyledContainer = styled.div`
-  background-color: ${appBackgroundColor};
-`;
-const StyledHeader = styled.header`
-  background-color: #252a38;
-  color: white;
-  height: ${headerHeight}px;
-`;
-const StyledFooter = styled.footer`
-  background-color: #353b4b;
-  color: white;
-  height: ${footerHeight}px;
-`;
-const StyledMain = styled.main`
-  height: ${mainHeight};
-  width: 100%;
-  display: flex;
-`;
-const StyledNav = styled.nav`
-  background-color: ${appBackgroundColor};
-  color: white;
-  width: ${navWidth}px;
-`;
-
-// Panel wrappers
-const PanelWrapper = styled.div`
-  height: 100%;
-  background-color: inherit;
-  overflow: auto;
-  border-radius: 4px;
-`;
-const LeftDrawer = styled(PanelWrapper)`
-  background-color: ${appSectionBackgroundColor};
-`;
-const RightDrawer = styled(PanelWrapper)`
-  background-color: ${appSectionBackgroundColor};
-`;
-const EditorArea = styled(PanelWrapper)`
-  background-color: #171b26;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 0;
-`;
-const EditorPanel = styled.div`
-  background-color: ${appSectionBackgroundColor};
-  padding: 1rem;
-  color: white;
-  height: 100%;
-`;
-const ConsolePanel = styled.div`
-  background-color: #111;
-  padding: 1rem;
-  color: white;
-  height: 100%;
-`;
-
-// Resize handles
-const HorizontalResizeHandle = styled(PanelResizeHandle)`
-  background-color: #252a38;
-  cursor: col-resize;
-  width: 4px;
-  &:hover {
-    background-color: #666;
-  }
-`;
-const VerticalResizeHandle = styled(PanelResizeHandle)`
-  height: 4px;
-  background-color: #252a38;
-  cursor: row-resize;
-  &:hover {
-    background-color: #666;
-  }
-`;
+import {
+  StyledContainer,
+  StyledHeader,
+  StyledFooter,
+  StyledMain,
+  StyledNav,
+  LeftDrawer,
+  RightDrawer,
+  EditorArea,
+  EditorPanel,
+  ConsolePanel,
+  HorizontalResizeHandle,
+  VerticalResizeHandle,
+} from './LayoutDefaults.jsx';
 
 // Utility: Render a layout section by name
 function renderSection(components, section) {
@@ -105,7 +34,7 @@ function renderSection(components, section) {
       </div>
     );
   }
-  return <SectionComponent {...(sectionStyles ? { style: sectionStyles } : {})} />;
+  return <SectionComponent className="section-component" {...(sectionStyles ? { style: sectionStyles } : {})} />;
 }
 
 /**
@@ -118,7 +47,7 @@ function renderSection(components, section) {
  */
 function Layout({
   layoutConfig = {},
-  drawerState = {  }
+  drawerState = { isLeftDrawerOpen: false, isRightDrawerOpen: false, isConsoleOpen: false }
 }) {
   const [defaultLayout, setDefaultLayout] = useState(undefined);
   const storageKey = 'editor-panel-layout';
@@ -140,41 +69,26 @@ function Layout({
 
   return (
     <StyledContainer style={layoutConfig?.components?.styles?.Container} data-name="Container">
-      <StyledHeader style={layoutConfig?.components?.styles?.Header} data-name="Header">
-        {renderSection(layoutConfig?.components, 'Header')}
-      </StyledHeader>
+      <StyledHeader style={layoutConfig?.components?.styles?.Header} data-name="Header"> {renderSection(layoutConfig?.components, 'Header')} </StyledHeader>
 
       <StyledMain style={layoutConfig?.components?.styles?.Main} data-name="Main">
-        <StyledNav style={layoutConfig?.components?.styles?.Nav} data-name="Nav">
-          {renderSection(layoutConfig?.components, 'Nav')}
-        </StyledNav>
+        <StyledNav style={layoutConfig?.components?.styles?.Nav} data-name="Nav"> {renderSection(layoutConfig?.components, 'Nav')} </StyledNav>
 
         <PanelGroup direction="horizontal" autoSaveId="main-panels" onLayout={handleSaveLayout} data-name="MainPanelGroup">
           {drawerState.isLeftDrawerOpen && (
             <>
-              <Panel
-                minSize={1}
-                defaultSize={15}
-                order={1}
-                collapsible={true}
-                collapsedSize={0}
-                data-name="LeftDrawerPanel"
-              >
-                <LeftDrawer style={layoutConfig?.components?.styles?.LeftDrawer} data-name="LeftDrawer">
-                  {renderSection(layoutConfig?.components, 'LeftDrawer')}
-                </LeftDrawer>
+              <Panel minSize={1} defaultSize={15} order={1} collapsible={true} collapsedSize={0} data-name="LeftDrawerPanel" >
+                <LeftDrawer style={layoutConfig?.components?.styles?.LeftDrawer} data-name="LeftDrawer"> {renderSection(layoutConfig?.components, 'LeftDrawer')} </LeftDrawer>
               </Panel>
               <HorizontalResizeHandle />
             </>
           )}
 
           <Panel minSize={1} order={2}>
-            <EditorArea style={layoutConfig?.components?.styles?.Editor} data-name="Editor">
-              <PanelGroup direction="vertical">
+            <EditorArea style={layoutConfig?.components?.styles?.Editor} data-name="EditorArea">
+              <PanelGroup direction="vertical" className="panel-group-vertical">
                 <Panel minSize={20}>
-                  <EditorPanel id="editors">
-                    {renderSection(layoutConfig?.components, 'Editor')}
-                  </EditorPanel>
+                  <EditorPanel id="editors"> {renderSection(layoutConfig?.components, 'Editor')} </EditorPanel>
                 </Panel>
 
                 {drawerState.isConsoleOpen && (
@@ -199,26 +113,15 @@ function Layout({
           {drawerState.isRightDrawerOpen && (
             <>
               <HorizontalResizeHandle />
-              <Panel
-                minSize={1}
-                defaultSize={15}
-                order={3}
-                collapsible={true}
-                collapsedSize={0}
-                data-name="RightDrawerPanel"
-              >
-                <RightDrawer style={layoutConfig?.components?.styles?.RightDrawer} data-name="RightDrawer">
-                  {renderSection(layoutConfig?.components, 'RightDrawer')}
-                </RightDrawer>
+              <Panel minSize={1} defaultSize={15} order={3} collapsible={true} collapsedSize={0} data-name="RightDrawerPanel">
+                <RightDrawer style={layoutConfig?.components?.styles?.RightDrawer} data-name="RightDrawer"> {renderSection(layoutConfig?.components, 'RightDrawer')} </RightDrawer>
               </Panel>
             </>
           )}
         </PanelGroup>
       </StyledMain>
 
-      <StyledFooter style={layoutConfig?.components?.styles?.Footer} data-name="Footer">
-        {renderSection(layoutConfig?.components, 'Footer')}
-      </StyledFooter>
+      <StyledFooter style={layoutConfig?.components?.styles?.Footer} data-name="Footer"> {renderSection(layoutConfig?.components, 'Footer')} </StyledFooter>
     </StyledContainer>
   );
 }

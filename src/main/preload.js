@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     maximize: () => { console.log('maximize called'); ipcRenderer.send('window:maximize'); },
     close: () => { console.log('close called'); ipcRenderer.send('window:close'); },
   },
+  clearUserData: () => ipcRenderer.send('app:clearUserData'),
 });
 
 console.log('Preload script loaded.');

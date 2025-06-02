@@ -30,7 +30,7 @@ const icons = [
  */
 export default function Nav() {
   return (
-    <nav style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0', color: '#aaa', gap: '1.5rem' }}>
+    <nav style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0', color: '#aaa', gap: '1.5rem', backgroundColor: 'red' }}>
       {/* VSCode-like navigation icons */}
       {icons.map(({ label, icon }) => (
         <div key={label} title={label} style={{ margin: '0.5rem 0', cursor: 'pointer', transition: 'background 0.2s', borderRadius: '6px', padding: '6px' }}

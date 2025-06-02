@@ -1,4 +1,4 @@
-import Layout from './components/Layout.jsx';
+import Layout from './components/Layout2.jsx';
 import './App.css';
 import { useAppContext } from './context/AppContext.jsx';
 

@@ -19,7 +19,7 @@ const HeaderContainer = styled.header`
   user-select: none;
   box-shadow: none;
   border-bottom: 1px solid rgba(255,255,255,0.04);
-  -webkit-app-region: drag
+  -webkit-app-region: drag;
 `;
 
 // Container for the logo and app name
@@ -124,6 +124,10 @@ const CloseIcon = () => (
   </svg>
 );
 
+const ResetIcon = () => (
+  <span style={{ WebkitAppRegion: 'no-drag' }}>♻️</span>
+);
+
 // Styled icon button
 const IconButton = styled.button`
   background: none;
@@ -164,11 +168,7 @@ const WindowButton = styled.button`
     -webkit-app-region: no-drag
 `;
 
-/**
- * Header component for the app.
- * Displays the app logo, name, and a row of menu items.
- */
-export default function Header() {
+function Controls() {
   const {
     state,
     toggleLeftDrawer,
@@ -176,16 +176,12 @@ export default function Header() {
     toggleConsole
   } = useAppContext();
   return (
-    <HeaderContainer>
-      <LogoContainer>
-        <LogoImg src={Logo} alt="App Logo" />
-        <AppName>SDT</AppName>
-      </LogoContainer>
-      <MenuBar>
-        {menuItems.map((item) => (
-          <MenuItem key={item}>{item}</MenuItem>
-        ))}
-      </MenuBar>
+    <>
+      <WindowButton title="Reset App" aria-label="Reset App" onClick={() => {
+        window.electronAPI?.clearUserData?.();
+      }}>
+        <ResetIcon />
+      </WindowButton>
       <div>
         <IconButton onClick={toggleLeftDrawer} title="Toggle Left Drawer" aria-label="Toggle Left Drawer">
           <LeftDrawerIcon />
@@ -213,7 +209,29 @@ export default function Header() {
         }}>
           <CloseIcon />
         </WindowButton>
+
       </WindowControls>
+    </>
+  );
+}
+/**
+ * Header component for the app.
+ * Displays the app logo, name, and a row of menu items.
+ */
+export default function Header() {
+
+  return (
+    <HeaderContainer>
+      <LogoContainer>
+        <LogoImg src={Logo} alt="App Logo" />
+        <AppName>SDT</AppName>
+      </LogoContainer>
+      <MenuBar>
+        {menuItems.map((item) => (
+          <MenuItem key={item}>{item}</MenuItem>
+        ))}
+      </MenuBar>
+      <Controls />
     </HeaderContainer>
   );
 }

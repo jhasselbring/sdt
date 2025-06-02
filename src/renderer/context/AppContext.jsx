@@ -45,46 +45,80 @@ export function AppProvider({ children }) {
   const [state, setState] = useState(initialState);
 
   // Example: function to update project
-  const setProject = (project) => setState((s) => ({ ...s, project }));
+  const setProject = (project) => {
+    setState((s) => {
+      const before = s;
+      const after = { ...s, project };
+      console.log('setProject BEFORE', before);
+      console.log('setProject AFTER', after);
+      return after;
+    });
+  };
   // Example: function to update user
-  const setUser = (user) => setState((s) => ({ ...s, user }));
+  const setUser = (user) => {
+    setState((s) => {
+      const before = s;
+      const after = { ...s, user };
+      console.log('setUser BEFORE', before);
+      console.log('setUser AFTER', after);
+      return after;
+    });
+  };
 
   // Toggle functions for drawers and console
   const toggleLeftDrawer = () =>
-    setState((s) => ({
-      ...s,
-      componentSections: {
-        ...s.componentSections,
-        state: {
-          ...s.componentSections.state,
-          isLeftDrawerOpen: !s.componentSections.state.isLeftDrawerOpen,
+    setState((s) => {
+      const before = s;
+      const after = {
+        ...s,
+        componentSections: {
+          ...s.componentSections,
+          state: {
+            ...s.componentSections.state,
+            isLeftDrawerOpen: !s.componentSections.state.isLeftDrawerOpen,
+          },
         },
-      },
-    }));
+      };
+      console.log('toggleLeftDrawer BEFORE', before);
+      console.log('toggleLeftDrawer AFTER', after);
+      return after;
+    });
 
   const toggleRightDrawer = () =>
-    setState((s) => ({
-      ...s,
-      componentSections: {
-        ...s.componentSections,
-        state: {
-          ...s.componentSections.state,
-          isRightDrawerOpen: !s.componentSections.state.isRightDrawerOpen,
+    setState((s) => {
+      const before = s;
+      const after = {
+        ...s,
+        componentSections: {
+          ...s.componentSections,
+          state: {
+            ...s.componentSections.state,
+            isRightDrawerOpen: !s.componentSections.state.isRightDrawerOpen,
+          },
         },
-      },
-    }));
+      };
+      console.log('toggleRightDrawer BEFORE', before);
+      console.log('toggleRightDrawer AFTER', after);
+      return after;
+    });
 
   const toggleConsole = () =>
-    setState((s) => ({
-      ...s,
-      componentSections: {
-        ...s.componentSections,
-        state: {
-          ...s.componentSections.state,
-          isConsoleOpen: !s.componentSections.state.isConsoleOpen,
+    setState((s) => {
+      const before = s;
+      const after = {
+        ...s,
+        componentSections: {
+          ...s.componentSections,
+          state: {
+            ...s.componentSections.state,
+            isConsoleOpen: !s.componentSections.state.isConsoleOpen,
+          },
         },
-      },
-    }));
+      };
+      console.log('toggleConsole BEFORE', before);
+      console.log('toggleConsole AFTER', after);
+      return after;
+    });
 
   return (
     <AppContext.Provider value={{

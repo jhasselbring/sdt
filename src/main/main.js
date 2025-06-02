@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
 import { initializeDatabase, run, get, all, closeDb } from './database.js';
@@ -19,7 +19,6 @@ await checkSquirrelStartup();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Set application name for Windows 10+ notifications
 if (process.platform === 'win32') {
   app.setAppUserModelId('com.example.datasetpreparer');
 }
@@ -35,7 +34,10 @@ function loadWindowState() {
   } catch (e) {
     console.error('Failed to load window state:', e);
   }
-  return { width: 800, height: 600 };
+
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const bounds = primaryDisplay.workArea;
+  return { width: bounds.width, height: bounds.height, x: bounds.x, y: bounds.y };
 }
 
 function saveWindowState(win) {
@@ -48,45 +50,59 @@ function saveWindowState(win) {
   }
 }
 
+// ✅ Added: Check if the stored window position is off-screen
+function isWindowOffScreen(bounds) {
+  const displays = screen.getAllDisplays();
+  return !displays.some(display => {
+    const d = display.workArea;
+    return (
+      bounds.x >= d.x &&
+      bounds.y >= d.y &&
+      bounds.x + bounds.width <= d.x + d.width &&
+      bounds.y + bounds.height <= d.y + d.height
+    );
+  });
+}
+
 const createWindow = async () => {
   const state = loadWindowState();
-  const mainWindow = new BrowserWindow({
+
+  let windowOptions = {
     width: state.width || 800,
     height: state.height || 600,
-    x: state.x,
-    y: state.y,
     frame: false,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
     },
-  });
+  };
+
+  // ✅ Added: If off-screen, center the window
+  if (isWindowOffScreen(state)) {
+    windowOptions.center = true;
+  } else {
+    windowOptions = {
+      ...windowOptions,
+      x: state.x,
+      y: state.y,
+    };
+  }
+
+  const mainWindow = new BrowserWindow(windowOptions);
   mainWindowRef = mainWindow;
 
   mainWindow.on('close', () => saveWindowState(mainWindow));
 
-  // Load the index.html of the app.
   if (isDev) {
-    // In development, load from Vite dev server
     await mainWindow.loadURL('http://localhost:3000');
-    // Open DevTools in development
     mainWindow.webContents.openDevTools({ mode: 'detach' });
   } else {
-    // In production, load the built files
     await mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
   }
-
-  // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
 };
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', () => {
   createWindow();
-  // Initialize the database only when a project is created or opened.
-  // initializeDatabase(path.join(app.getPath('userData'), 'sdt.sqlite'));
 });
 
 // IPC handlers for database operations
@@ -96,8 +112,7 @@ ipcMain.handle('db:run', async (_, sql, params) => {
     return { success: true, data: result };
   } catch (error) {
     console.error('Database run error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return { success: false, error: errorMessage };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 });
 
@@ -107,8 +122,7 @@ ipcMain.handle('db:get', async (_, sql, params) => {
     return { success: true, data: result };
   } catch (error) {
     console.error('Database get error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return { success: false, error: errorMessage };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 });
 
@@ -118,56 +132,48 @@ ipcMain.handle('db:all', async (_, sql, params) => {
     return { success: true, data: result };
   } catch (error) {
     console.error('Database all error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    return { success: false, error: errorMessage };
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
   }
 });
 
 // Window control IPC handlers
 ipcMain.on('window:minimize', () => {
   console.log('window:minimize received');
-  if (mainWindowRef) {
-    mainWindowRef.minimize();
-  } else {
-    console.log('mainWindowRef is undefined');
-  }
+  mainWindowRef?.minimize();
 });
 ipcMain.on('window:close', () => {
   console.log('window:close received');
-  if (mainWindowRef) {
-    mainWindowRef.close();
-  } else {
-    console.log('mainWindowRef is undefined');
-  }
+  mainWindowRef?.close();
 });
-
 ipcMain.on('window:maximize', () => {
   console.log('window:maximize received');
   if (mainWindowRef) {
-    if (mainWindowRef.isMaximized()) {
-      mainWindowRef.unmaximize();
-    } else {
-      mainWindowRef.maximize();
-    }
-  } else {
-    console.log('mainWindowRef is undefined');
+    mainWindowRef.isMaximized() ? mainWindowRef.unmaximize() : mainWindowRef.maximize();
   }
 });
 
-// Quit when all windows are closed.
 app.on('window-all-closed', () => {
   app.quit();
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });
 
-// Handle app quit to close the database connection
 app.on('will-quit', () => {
   closeDb();
+});
+
+ipcMain.on('app:clearUserData', () => {
+  const userData = app.getPath('userData');
+  try {
+    fs.rmSync(userData, { recursive: true, force: true });
+    console.log('Cleared userData directory:', userData);
+  } catch (e) {
+    console.error('Failed to clear userData:', e);
+  }
+  app.relaunch();
+  app.exit();
 });
