@@ -123,11 +123,20 @@ const Layout2 = ({
     return 70;
   });
 
-  // Effect to log whenever isPrimaryDrawerOpen updates
+  // Log whenever isPrimaryDrawerOpen updates
   useEffect(() => {
     console.log('isPrimaryDrawerOpen updated:', drawerState.isPrimaryDrawerOpen);
-    // You can call other functions here as needed
   }, [drawerState.isPrimaryDrawerOpen]);
+
+  // Log whenever isSecondaryDrawerOpen updates
+  useEffect(() => {
+    console.log('isSecondaryDrawerOpen updated:', drawerState.isSecondaryDrawerOpen);
+  }, [drawerState.isSecondaryDrawerOpen]);
+
+  // Log whenever isConsoleOpen updates
+  useEffect(() => {
+    console.log('isConsoleOpen updated:', drawerState.isConsoleOpen);
+  }, [drawerState.isConsoleOpen]);
 
   // Set explicit heights on editor-window and console-window refs after render
   useEffect(() => {
@@ -240,6 +249,44 @@ const Layout2 = ({
     };
   }, [editorHeightPercent]);
 
+  useEffect(() => {
+    if (!primaryDrawerRef.current) return;
+  
+    if (!drawerState.isPrimaryDrawerOpen) {
+      // Collapse
+      primaryDrawerRef.current.style.width = '0px';
+      localStorage.setItem('layout2-primary-drawer-width', '0');
+      setDrawerWidths((prev) => ({ ...prev, left: 0 }));
+    } else {
+      // Restore to previous width (fallback to 200 if current is 0)
+      const storedWidth = parseInt(localStorage.getItem('layout2-primary-drawer-width') || '200', 10);
+      const width = storedWidth > 0 ? storedWidth : 200;
+  
+      primaryDrawerRef.current.style.width = `${width}px`;
+      localStorage.setItem('layout2-primary-drawer-width', width.toString());
+      setDrawerWidths((prev) => ({ ...prev, left: width }));
+    }
+  }, [drawerState.isPrimaryDrawerOpen]);
+
+  useEffect(() => {
+    if (!primaryDrawerRef.current) return;
+  
+    if (!drawerState.isPrimaryDrawerOpen) {
+      // Collapse
+      primaryDrawerRef.current.style.width = '0px';
+      localStorage.setItem('layout2-primary-drawer-width', '0');
+      setDrawerWidths((prev) => ({ ...prev, left: 0 }));
+    } else {
+      // Restore to previous width (fallback to 200 if current is 0)
+      const storedWidth = parseInt(localStorage.getItem('layout2-primary-drawer-width') || '200', 10);
+      const width = storedWidth > 0 ? storedWidth : 200;
+  
+      primaryDrawerRef.current.style.width = `${width}px`;
+      localStorage.setItem('layout2-primary-drawer-width', width.toString());
+      setDrawerWidths((prev) => ({ ...prev, left: width }));
+    }
+  }, [drawerState.isPrimaryDrawerOpen]);
+  
   return (
     <>
       <StyledHeader style={layoutConfig?.components?.styles?.Header}>
