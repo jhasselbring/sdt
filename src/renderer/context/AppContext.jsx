@@ -29,7 +29,6 @@ const initialState = {
         color: '#fff',
         fontSize: '16px',
         padding: '0',
-        height: '500px',
       },
       Main: {
         height: 'var(--main-height)',

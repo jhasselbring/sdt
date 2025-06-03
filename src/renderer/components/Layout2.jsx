@@ -2,11 +2,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 
 const StyledHeader = styled.header`
-  height: 30px;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  overflow: hidden;
   position: absolute;
   top: 0;
   left: 0;
