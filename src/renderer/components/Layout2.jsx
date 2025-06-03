@@ -18,7 +18,6 @@ const StyledMain = styled.main`
   display: flex;
 
   nav {
-    width: 50px;
     height: 100%;
     margin: 0;
     padding: 0;
@@ -29,14 +28,12 @@ const StyledMain = styled.main`
   editor-group {
     flex: 1;
     height: 100%;
-    background-color: blue;
     display: flex;
     width: 100%;
     overflow: hidden;
 
     primary-drawer,
     secondary-drawer {
-      background-color: green;
       height: 100%;
       overflow: hidden;
     }
@@ -44,31 +41,28 @@ const StyledMain = styled.main`
     editors-container {
       flex: 1;
       height: 100%;
-      background-color: pink;
       display: flex;
       flex-direction: column;
       overflow: hidden;
 
       editor-window {
-        background-color: #ffaaaa;
         overflow: auto;
         /* height set dynamically */
       }
 
       .horizontal-resizer {
         height: 5px;
-        background: rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.05);
         cursor: row-resize;
         z-index: 1;
         user-select: none;
       }
 
       .horizontal-resizer:hover {
-        background: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.1);
       }
 
       console-window {
-        background-color: #aaaaff;
         overflow: hidden;
         /* height set dynamically */
       }
@@ -76,14 +70,14 @@ const StyledMain = styled.main`
 
     .resizer {
       width: 5px;
-      background: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.05);
       cursor: col-resize;
       z-index: 1;
       user-select: none;
     }
 
     .resizer:hover {
-      background: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.1);
     }
   }
 `;
@@ -287,11 +281,11 @@ const Layout2 = ({
     const editorsEl = editorsRef.current;
     const editorEl = editorWindowRef.current;
     const consoleEl = consoleWindowRef.current;
-  
+
     if (!editorsEl || !editorEl || !consoleEl) return;
-  
+
     const editorsHeight = editorsEl.clientHeight;
-  
+
     if (!drawerState.isConsoleOpen) {
       // Collapse console
       consoleEl.style.height = '0px';
@@ -306,50 +300,50 @@ const Layout2 = ({
         if (storedPercent === 100) storedPercent = 70;
         const newEditorHeight = (storedPercent / 100) * editorsHeight;
         const newConsoleHeight = editorsHeight - newEditorHeight;
-  
+
         editorEl.style.height = `${newEditorHeight}px`;
         consoleEl.style.height = `${newConsoleHeight}px`;
-  
+
         setEditorHeightPercent(storedPercent);
       });
     }
   }, [drawerState.isConsoleOpen]);
-  
+
 
   return (
     <>
       <StyledHeader style={layoutConfig?.components?.styles?.Header}>
         {renderSection(layoutConfig?.components, 'Header')}
       </StyledHeader>
-      <StyledMain>
-        <nav>{renderSection(layoutConfig?.components, 'Nav')}</nav>
-        <editor-group ref={editorGroupRef}>
+      <StyledMain style={layoutConfig?.components?.styles?.Main}>
+        <nav style={layoutConfig?.components?.styles?.Nav}>{renderSection(layoutConfig?.components, 'Nav')}</nav>
+        <editor-group style={layoutConfig?.components?.styles?.EditorGroup} ref={editorGroupRef}>
           <primary-drawer
             ref={primaryDrawerRef}
-            style={{ width: `${drawerWidths.left}px` }}
+            style={{ width: `${drawerWidths.left}px`, ...(layoutConfig?.components?.styles?.PrimaryDrawer || {}) }}
           >
             {renderSection(layoutConfig?.components, 'PrimaryDrawer')}
           </primary-drawer>
-          <div className="resizer" data-position="left" />
-          <editors-container ref={editorsRef}>
-            <editor-window ref={editorWindowRef}>
+          <div style={layoutConfig?.components?.styles?.VerticalResizer} className="resizer" data-position="left" />
+          <editors-container ref={editorsRef} style={layoutConfig?.components?.styles?.EditorsContainer}>
+            <editor-window ref={editorWindowRef} style={layoutConfig?.components?.styles?.EditorWindow}>
               {renderSection(layoutConfig?.components, 'EditorWindow')}
             </editor-window>
-            <div className="horizontal-resizer" />
-            <console-window ref={consoleWindowRef}>
+            <div style={layoutConfig?.components?.styles?.HorizontalResizer} className="horizontal-resizer" />
+            <console-window ref={consoleWindowRef} style={layoutConfig?.components?.styles?.Console}>
               {renderSection(layoutConfig?.components, 'ConsoleWindow')}
             </console-window>
           </editors-container>
-          <div className="resizer" data-position="right" />
+          <div style={layoutConfig?.components?.styles?.VerticalResizer} className="resizer" data-position="right" />
           <secondary-drawer
             ref={secondaryDrawerRef}
-            style={{ width: `${drawerWidths.right}px` }}
+            style={{ width: `${drawerWidths.right}px`, ...(layoutConfig?.components?.styles?.SecondaryDrawer || {}) }}
           >
             {renderSection(layoutConfig?.components, 'SecondaryDrawer')}
           </secondary-drawer>
         </editor-group>
       </StyledMain>
-      <StyledFooter>
+      <StyledFooter style={layoutConfig?.components?.styles?.Footer}>
         {renderSection(layoutConfig?.components, 'Footer')}
       </StyledFooter>
     </>

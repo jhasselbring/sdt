@@ -1,11 +1,25 @@
 import React, { createContext, useContext, useState } from 'react';
-import Header from '../components/Header';
-import Nav from '../components/Nav';
+import GetStarted from '../components/GetStarted';
+import EmptyDrawer from '../components/drawers/EmptyDrawer';
+import '@vscode/codicons/dist/codicon.css';
+
+// import SecondaryDrawer from '../components/SecondaryDrawer';
 // Define your initial global state shape here
+function emptyComponent() {
+  return (<></>);
+}
 const initialState = {
   componentSections: {
-    Header,
-    Nav,
+    Header: emptyComponent,
+    Nav: emptyComponent,
+    PrimaryDrawer: EmptyDrawer,
+    SecondaryDrawer: EmptyDrawer,
+    EditorWindow: GetStarted,
+    ConsolePanel: GetStarted,
+    ConsoleWindow: GetStarted,
+    Footer: function() {
+      return (<><span className="codicon codicon-account" style={{ fontSize: 18, padding:'2px', color: '#fff', backgroundColor: '#115f99' }}></span></>);
+    },
     styles: {
       Container: {
         height: '100vh',
@@ -15,17 +29,28 @@ const initialState = {
         color: '#fff',
         fontSize: '16px',
         padding: '0',
-        height: '30px',
+        height: 'var(--header-height)',
       },
       Main: {
-        height: 'calc(100vh - 30px - 27px)',
+        height: 'var(--main-height)',
+      },
+      Nav: {
+        backgroundColor: '#171520',
+        width: "41px"
+      },
+      PrimaryDrawer: {
+        backgroundColor: 'var(--background-color)',
+      },
+      SecondaryDrawer: {
+        backgroundColor: 'var(--background-color)',
       },
       Footer: {
         color: '#fff',
         fontSize: '16px',
-        height: '27px',
+        height: 'var(--header-height)',
         lineHeight: '16px',
         padding: '0',
+        backgroundColor: '#262335'
       }
     },
     state: {
@@ -34,9 +59,24 @@ const initialState = {
       isConsoleOpen: true,
     }
   },
-  project: null, // e.g., { name: '', outputDir: '', ... }
-  user: null,    // e.g., { name: '', id: '' }
-  // Add more global state as needed
+  projectData: {
+    inputs: {
+      /**
+       * dirRootName:[
+       * 'full/path/to/image1.jpg',
+       * 'full/path/to/image2.jpg',
+       * ]
+       */
+    },
+    outputs: [
+      // 'full/path/to/output1.jpg',
+    ],
+  },
+  projectMeta: {
+    name: '',
+    inputDirs: [],
+    outputDir: '',
+  }
 };
 
 const AppContext = createContext();

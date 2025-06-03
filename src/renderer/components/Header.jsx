@@ -4,6 +4,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
+import '@vscode/codicons/dist/codicon.css';
 import theme from '../theme';
 import Logo from '../assets/react.svg';
 import { useAppContext } from '../context/AppContext.jsx';
@@ -15,7 +16,6 @@ const HeaderContainer = styled.header`
   background: transparent;
   color: #e0e0e0;
   height: 32px;
-  padding: 0 20px;
   user-select: none;
   box-shadow: none;
   border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -39,15 +39,6 @@ const LogoImg = styled.img`
   -webkit-app-region: no-drag
 `;
 
-// App name styling
-const AppName = styled.span`
-  font-size: 1rem;
-  font-weight: 600;
-  font-family: ${theme.fonts.main};
-  color: #e0e0e0;
-  letter-spacing: 0.5px;
-  -webkit-app-region: no-drag
-`;
 
 // Menu bar container for menu items
 const MenuBar = styled.nav`
@@ -77,55 +68,36 @@ const MenuItem = styled.span`
     -webkit-app-region: no-drag
 `;
 
-// List of menu items to display in the header
+// List of menu items to display in the header  'View',
+
 const menuItems = [
   'File',
   'Edit',
-  'View',
   'Help',
 ];
 
-// Add SVG icon components for toggles (matching screenshot style)
+// Codicon-based icon components
 const LeftDrawerIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <rect x="3" y="4" width="18" height="16" rx="2" fill="#a09ba8" />
-    <rect x="5" y="6" width="4" height="12" rx="1" fill="#231c2b" />
-  </svg>
+  <span className="codicon codicon-layout-sidebar-left" style={{ fontSize: 22, color: '#a09ba8' }} />
 );
 const ConsoleIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <rect x="3" y="4" width="18" height="16" rx="2" fill="#a09ba8" />
-    <rect x="5" y="14" width="14" height="4" rx="1" fill="#231c2b" />
-  </svg>
+  <span className="codicon codicon-layout-panel" style={{ fontSize: 22, color: '#a09ba8' }} />
 );
 const RightDrawerIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <rect x="3" y="4" width="18" height="16" rx="2" fill="#a09ba8" />
-    <rect x="15" y="6" width="4" height="12" rx="1" fill="#231c2b" />
-  </svg>
+  <span className="codicon codicon-layout-sidebar-right" style={{ fontSize: 22, color: '#a09ba8' }} />
 );
-
-// Window controls icons
 const MinimizeIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <rect x="6" y="12" width="12" height="2" rx="1" fill="#a09ba8" />
-  </svg>
+  <span className="codicon codicon-chrome-minimize" style={{ fontSize: 22, color: '#a09ba8' }} />
 );
 const MaximizeIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-    <rect x="5" y="5" width="14" height="14" rx="2" fill="#a09ba8" />
-  </svg>
+  <span className="codicon codicon-chrome-maximize" style={{ fontSize: 22, color: '#a09ba8' }} />
 );
 const CloseIcon = () => (
-  <svg width="32" height="22" viewBox="0 0 32 22" fill="none">
-    <rect x="0" y="0" width="32" height="22" rx="0" fill="#e11d2b" />
-    <line x1="10" y1="6" x2="22" y2="16" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-    <line x1="22" y1="6" x2="10" y2="16" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-  </svg>
+  <span className="codicon codicon-close" style={{ fontSize: 22, color: '#e11d2b' }} />
 );
 
 const ResetIcon = () => (
-  <span style={{ WebkitAppRegion: 'no-drag' }}>♻️</span>
+  <span style={{ WebkitAppRegion: 'no-drag', fontSize: 22, color: '#a09ba8' }} className='codicon codicon-issue-reopened'></span>
 );
 
 // Styled icon button
@@ -182,7 +154,7 @@ function Controls() {
       }}>
         <ResetIcon />
       </WindowButton>
-      <div>
+      <layout>
         <IconButton onClick={togglePrimaryDrawer} title="Toggle Primary Drawer" aria-label="Toggle Primary Drawer">
           <LeftDrawerIcon />
         </IconButton>
@@ -192,7 +164,7 @@ function Controls() {
         <IconButton onClick={toggleSecondaryDrawer} title="Toggle Secondary Drawer" aria-label="Toggle Secondary Drawer">
           <RightDrawerIcon />
         </IconButton>
-      </div>
+      </layout>
       <WindowControls>
         <WindowButton title="Minimize" aria-label="Minimize" onClick={() => {
           window.electronAPI?.window?.minimize?.();
@@ -223,8 +195,7 @@ export default function Header() {
   return (
     <HeaderContainer>
       <LogoContainer>
-        <LogoImg src={Logo} alt="App Logo" />
-        <AppName>SDT</AppName>
+        <span className="codicon codicon-symbol-event" style={{ fontSize: 30, padding:'2px', color: '#fff', backgroundColor: '#115f99' }}></span>
       </LogoContainer>
       <MenuBar>
         {menuItems.map((item) => (

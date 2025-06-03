@@ -15,11 +15,11 @@
     "rebuild": "electron-rebuild -f -w better-sqlite3"
   },
   "dependencies": {
+    "@vscode/codicons": "^0.0.36",
     "better-sqlite3": "^11.10.0",
     "electron-is-dev": "^3.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-resizable-panels": "^3.0.2",
     "styled-components": "^6.1.18"
   },
   "devDependencies": {
