@@ -1,4 +1,4 @@
-import Layout from './components/Layout2.jsx';
+import Layout from './components/Layout.jsx';
 import './App.css';
 
 import Header from './components/Header';

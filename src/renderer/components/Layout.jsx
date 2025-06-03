@@ -2,11 +2,9 @@ import React, { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 
 const StyledHeader = styled.header`
-  height: 30px;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  overflow: hidden;
   position: absolute;
   top: 0;
   left: 0;
@@ -102,7 +100,7 @@ const StyledFooter = styled.footer`
   overflow: hidden;
 `;
 
-export default Layout = ({
+const Layout = ({
   layoutConfig = {},
   drawerState = { isPrimaryDrawerOpen: false, isSecondaryDrawerOpen: false, isConsoleOpen: false },
 }) => {
@@ -128,21 +126,6 @@ export default Layout = ({
     }
     return 70;
   });
-
-  // Log whenever isPrimaryDrawerOpen updates
-  useEffect(() => {
-    console.log('isPrimaryDrawerOpen updated:', drawerState.isPrimaryDrawerOpen);
-  }, [drawerState.isPrimaryDrawerOpen]);
-
-  // Log whenever isSecondaryDrawerOpen updates
-  useEffect(() => {
-    console.log('isSecondaryDrawerOpen updated:', drawerState.isSecondaryDrawerOpen);
-  }, [drawerState.isSecondaryDrawerOpen]);
-
-  // Log whenever isConsoleOpen updates
-  useEffect(() => {
-    console.log('isConsoleOpen updated:', drawerState.isConsoleOpen);
-  }, [drawerState.isConsoleOpen]);
 
   // Set explicit heights on editor-window and console-window refs after render
   useEffect(() => {
@@ -364,7 +347,9 @@ export default Layout = ({
   );
 };
 
-const renderSection = (components, section) => {
+export default Layout;
+
+function renderSection(components, section) {
   const SectionComponent = components?.[section];
   const sectionStyles = components?.styles?.[section];
   if (!SectionComponent) {
