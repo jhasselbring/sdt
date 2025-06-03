@@ -7,8 +7,8 @@
   "scripts": {
     "dev": "vite",
     "dev:electron": "concurrently \"npm run dev\" \"npx electron .\"",
-    "build": "tsc -b && vite build && electron-builder",
-    "build:vite": "tsc -b && vite build",
+    "build": "vite build && electron-builder",
+    "build:vite": "vite build",
     "start": "npm run build:vite && electron .",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -36,9 +36,6 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
-    "ts-node": "^10.9.2",
-    "typescript": "~5.8.3",
-    "typescript-eslint": "^8.30.1",
     "vite": "^6.3.5"
   },
   "build": {
