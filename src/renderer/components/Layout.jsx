@@ -307,7 +307,7 @@ const Layout = ({
 
   return (
     <>
-      <StyledHeaderShadow style={layoutConfig?.components?.styles?.HeaderShadow}>
+      <StyledHeaderShadow style={layoutConfig?.components?.styles?.Header}>
       </StyledHeaderShadow>
       <StyledHeader style={layoutConfig?.components?.styles?.Header}>
         {renderSection(layoutConfig?.components, 'Header')}

@@ -6,8 +6,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import '@vscode/codicons/dist/codicon.css';
 import theme from '../theme';
-import Logo from '../assets/react.svg';
-import { useAppContext } from '../context/AppContext.jsx';
+import HeaderControls from './HeaderComponents/HeaderControls.jsx';
+
 
 // Styled container for the header bar
 const HeaderContainer = styled.header`
@@ -103,115 +103,10 @@ const menuItems = [
 ];
 
 // Codicon-based icon components
-const LeftDrawerIcon = () => (
-  <span className="codicon codicon-layout-sidebar-left" style={{ fontSize: 22, color: '#a09ba8' }} />
-);
-const ConsoleIcon = () => (
-  <span className="codicon codicon-layout-panel" style={{ fontSize: 22, color: '#a09ba8' }} />
-);
-const RightDrawerIcon = () => (
-  <span className="codicon codicon-layout-sidebar-right" style={{ fontSize: 22, color: '#a09ba8' }} />
-);
-const MinimizeIcon = () => (
-  <span className="codicon codicon-chrome-minimize" style={{ fontSize: 22, color: '#a09ba8' }} />
-);
-const MaximizeIcon = () => (
-  <span className="codicon codicon-chrome-maximize" style={{ fontSize: 22, color: '#a09ba8' }} />
-);
-const CloseIcon = () => (
-  <span className="codicon codicon-close" style={{ fontSize: 22, color: '#e11d2b' }} />
-);
 
-const ResetIcon = () => (
-  <span style={{ WebkitAppRegion: 'no-drag', fontSize: 22, color: '#a09ba8' }} className='codicon codicon-issue-reopened'></span>
-);
 
-// Styled icon button
-const IconButton = styled.button`
-  background: none;
-  border: none;
-  padding: 6px;
-  margin-left: 8px;
-  border-radius: 5px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  transition: background 0.18s;
-  &:hover, &:focus {
-    background: rgba(255,255,255,0.08);
-    outline: none;
-  }
-    -webkit-app-region: no-drag
-`;
 
-const WindowControls = styled.div`
-  display: flex;
-  align-items: center;
-  margin-left: auto;
-  -webkit-app-region: no-drag
-`;
-const WindowButton = styled.button`
-  background: none;
-  border: none;
-  padding: 0;
-  margin-left: 8px;
-  border-radius: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  transition: background 0.18s;
-  &:hover:has(svg rect[fill="#e11d2b"]) svg rect {
-    fill: #b3131f;
-  }
-    -webkit-app-region: no-drag
-`;
 
-function Controls() {
-  const {
-    state,
-    togglePrimaryDrawer,
-    toggleSecondaryDrawer,
-    toggleConsole
-  } = useAppContext();
-  return (
-    <>
-      <WindowButton title="Reset App" aria-label="Reset App" onClick={() => {
-        window.electronAPI?.clearUserData?.();
-      }}>
-        <ResetIcon />
-      </WindowButton>
-      <layout>
-        <IconButton onClick={togglePrimaryDrawer} title="Toggle Primary Drawer" aria-label="Toggle Primary Drawer">
-          <LeftDrawerIcon />
-        </IconButton>
-        <IconButton onClick={toggleConsole} title="Toggle Console" aria-label="Toggle Console">
-          <ConsoleIcon />
-        </IconButton>
-        <IconButton onClick={toggleSecondaryDrawer} title="Toggle Secondary Drawer" aria-label="Toggle Secondary Drawer">
-          <RightDrawerIcon />
-        </IconButton>
-      </layout>
-      <WindowControls>
-        <WindowButton title="Minimize" aria-label="Minimize" onClick={() => {
-          window.electronAPI?.window?.minimize?.();
-        }}>
-          <MinimizeIcon />
-        </WindowButton>
-        <WindowButton title="Maximize" aria-label="Maximize" onClick={() => {
-          window.electronAPI?.window?.maximize?.();
-        }}>
-          <MaximizeIcon />
-        </WindowButton>
-        <WindowButton title="Close" aria-label="Close" onClick={() => {
-          window.electronAPI?.window?.close?.();
-        }}>
-          <CloseIcon />
-        </WindowButton>
-
-      </WindowControls>
-    </>
-  );
-}
 /**
  * Header component for the app.
  * Displays the app logo, name, and a row of menu items.
@@ -277,7 +172,7 @@ export default function Header() {
           )
         )}
       </MenuBar>
-      <Controls />
+      <HeaderControls />
     </HeaderContainer>
   );
 }

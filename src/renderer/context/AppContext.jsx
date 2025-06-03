@@ -29,6 +29,7 @@ const initialState = {
         color: '#fff',
         fontSize: '16px',
         padding: '0',
+        height: 'var(--header-height)',
       },
       Main: {
         height: 'var(--main-height)',
@@ -46,7 +47,7 @@ const initialState = {
       Footer: {
         color: '#fff',
         fontSize: '16px',
-        height: 'var(--header-height)',
+        height: 'var(--footer-height)',
         lineHeight: '16px',
         padding: '0',
         backgroundColor: '#262335'
