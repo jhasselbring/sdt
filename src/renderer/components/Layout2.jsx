@@ -7,6 +7,18 @@ const StyledHeader = styled.header`
   padding: 0;
   box-sizing: border-box;
   overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+`;
+const StyledHeaderShadow = styled.header`
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
 `;
 
 const StyledMain = styled.main`
@@ -312,6 +324,8 @@ const Layout2 = ({
 
   return (
     <>
+      <StyledHeaderShadow style={layoutConfig?.components?.styles?.HeaderShadow}>
+      </StyledHeaderShadow>
       <StyledHeader style={layoutConfig?.components?.styles?.Header}>
         {renderSection(layoutConfig?.components, 'Header')}
       </StyledHeader>

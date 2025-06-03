@@ -29,7 +29,7 @@ const initialState = {
         color: '#fff',
         fontSize: '16px',
         padding: '0',
-        height: 'var(--header-height)',
+        height: '500px',
       },
       Main: {
         height: 'var(--main-height)',
