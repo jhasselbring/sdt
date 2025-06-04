@@ -17,6 +17,7 @@ const initialState = {
     EditorWindow: GetStarted,
     ConsolePanel: GetStarted,
     ConsoleWindow: GetStarted,
+    Modal: null,
     Footer: function() {
       return (<><span className="codicon codicon-account" style={{ fontSize: 18, padding:'2px', color: '#fff', backgroundColor: '#115f99' }}></span></>);
     },

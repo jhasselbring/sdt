@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
 import theme from '../../theme';
+import { useAppContext } from '../../context/AppContext.jsx';
+import NewProjectForm from '../NewProjectForm.jsx';
 // Menu bar container for menu items
 const MenuBar = styled.nav`
   -webkit-app-region: no-drag;
@@ -57,12 +59,24 @@ const MenuBar = styled.nav`
 export default function HeaderMenu() {
     const [openMenu, setOpenMenu] = useState(null);
     const menuRefs = useRef({});
+    const { setState } = useAppContext();
 
     const menuItems = {
         "File": {
             "New Project": () => {
-                // TODO: Implement New Project logic
-                alert('New Project clicked');
+                setState(s => ({
+                    ...s,
+                    componentSections: {
+                        ...s.componentSections,
+                        Modal: (props) => <NewProjectForm {...props} onClose={() => setState(s2 => ({
+                            ...s2,
+                            componentSections: {
+                                ...s2.componentSections,
+                                Modal: null
+                            }
+                        }))} />
+                    }
+                }));
             },
             "Open Project": () => {
                 // TODO: Implement Open Project logic
