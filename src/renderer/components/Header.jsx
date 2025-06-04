@@ -9,6 +9,20 @@ import theme from '../theme';
 import HeaderControls from './HeaderComponents/HeaderControls.jsx';
 import HeaderMenu from './HeaderComponents/HeaderMenu.jsx';
 
+
+
+export default function Header() {
+  return (
+    <HeaderContainer>
+      <div id="logo-container">
+        <span className="codicon codicon-symbol-event" style={{ fontSize: 30, padding: '2px', color: '#fff', backgroundColor: '#115f99' }}></span>
+      </div>
+      <HeaderMenu />
+      <HeaderControls />
+    </HeaderContainer>
+  );
+}
+
 // Styled container for the header bar
 const HeaderContainer = styled.header`
   display: flex;
@@ -20,25 +34,11 @@ const HeaderContainer = styled.header`
   box-shadow: none;
   border-bottom: 1px solid rgba(255,255,255,0.04);
   -webkit-app-region: drag;
+  #logo-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 20px;
+    -webkit-app-region: no-drag
+  }
 `;
-
-// Container for the logo and app name
-const LogoContainer = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-right: 20px;
-  -webkit-app-region: no-drag
-`;
-
-export default function Header() {
-  return (
-    <HeaderContainer>
-      <LogoContainer>
-        <span className="codicon codicon-symbol-event" style={{ fontSize: 30, padding: '2px', color: '#fff', backgroundColor: '#115f99' }}></span>
-      </LogoContainer>
-      <HeaderMenu />
-      <HeaderControls />
-    </HeaderContainer>
-  );
-}
