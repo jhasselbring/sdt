@@ -100,6 +100,19 @@ const StyledFooter = styled.footer`
   overflow: hidden;
 `;
 
+const ModalOverlay = styled.div`
+  position: absolute;
+  top: 30px; /* below header (header+shadow = 30px) */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999; /* below header (1000), above everything else */
+  background: rgba(20, 20, 30, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 export default function Layout({
   layoutConfig = {},
   drawerState = { isPrimaryDrawerOpen: false, isSecondaryDrawerOpen: false, isConsoleOpen: false },
@@ -305,11 +318,19 @@ export default function Layout({
   }, [drawerState.isConsoleOpen]);
 
 
+  const ModalComponent = layoutConfig?.components?.Modal;
+
   return (
     <>
       <StyledHeader style={layoutConfig?.components?.styles?.Header}> {renderSection(layoutConfig?.components, 'Header')} </StyledHeader>
 
       <StyledHeaderShadow style={layoutConfig?.components?.styles?.Header}></StyledHeaderShadow>
+
+      {ModalComponent && (
+        <ModalOverlay>
+          <ModalComponent />
+        </ModalOverlay>
+      )}
 
       <StyledMain style={layoutConfig?.components?.styles?.Main}>
 
