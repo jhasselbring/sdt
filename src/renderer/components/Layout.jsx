@@ -100,10 +100,10 @@ const StyledFooter = styled.footer`
   overflow: hidden;
 `;
 
-const Layout = ({
+export default function Layout({
   layoutConfig = {},
   drawerState = { isPrimaryDrawerOpen: false, isSecondaryDrawerOpen: false, isConsoleOpen: false },
-}) => {
+}) {
   const primaryDrawerRef = useRef(null);
   const secondaryDrawerRef = useRef(null);
   const editorGroupRef = useRef(null);
@@ -307,47 +307,46 @@ const Layout = ({
 
   return (
     <>
-      <StyledHeaderShadow style={layoutConfig?.components?.styles?.Header}>
-      </StyledHeaderShadow>
-      <StyledHeader style={layoutConfig?.components?.styles?.Header}>
-        {renderSection(layoutConfig?.components, 'Header')}
-      </StyledHeader>
+      <StyledHeader style={layoutConfig?.components?.styles?.Header}> {renderSection(layoutConfig?.components, 'Header')} </StyledHeader>
+
+      <StyledHeaderShadow style={layoutConfig?.components?.styles?.Header}></StyledHeaderShadow>
+
       <StyledMain style={layoutConfig?.components?.styles?.Main}>
+
         <nav style={layoutConfig?.components?.styles?.Nav}>{renderSection(layoutConfig?.components, 'Nav')}</nav>
+
         <editor-group style={layoutConfig?.components?.styles?.EditorGroup} ref={editorGroupRef}>
-          <primary-drawer
-            ref={primaryDrawerRef}
-            style={{ width: `${drawerWidths.left}px`, ...(layoutConfig?.components?.styles?.PrimaryDrawer || {}) }}
-          >
+
+          <primary-drawer ref={primaryDrawerRef} style={{ width: `${drawerWidths.left}px`, ...(layoutConfig?.components?.styles?.PrimaryDrawer || {}) }}>
+
             {renderSection(layoutConfig?.components, 'PrimaryDrawer')}
+
           </primary-drawer>
+
           <div style={layoutConfig?.components?.styles?.VerticalResizer} className="resizer" data-position="left" />
+
           <editors-container ref={editorsRef} style={layoutConfig?.components?.styles?.EditorsContainer}>
-            <editor-window ref={editorWindowRef} style={layoutConfig?.components?.styles?.EditorWindow}>
-              {renderSection(layoutConfig?.components, 'EditorWindow')}
-            </editor-window>
+            
+            <editor-window ref={editorWindowRef} style={layoutConfig?.components?.styles?.EditorWindow}> {renderSection(layoutConfig?.components, 'EditorWindow')} </editor-window>
+
             <div style={layoutConfig?.components?.styles?.HorizontalResizer} className="horizontal-resizer" />
-            <console-window ref={consoleWindowRef} style={layoutConfig?.components?.styles?.Console}>
-              {renderSection(layoutConfig?.components, 'ConsoleWindow')}
-            </console-window>
+
+            <console-window ref={consoleWindowRef} style={layoutConfig?.components?.styles?.Console}> {renderSection(layoutConfig?.components, 'ConsoleWindow')} </console-window>
+
           </editors-container>
+
           <div style={layoutConfig?.components?.styles?.VerticalResizer} className="resizer" data-position="right" />
-          <secondary-drawer
-            ref={secondaryDrawerRef}
-            style={{ width: `${drawerWidths.right}px`, ...(layoutConfig?.components?.styles?.SecondaryDrawer || {}) }}
-          >
-            {renderSection(layoutConfig?.components, 'SecondaryDrawer')}
-          </secondary-drawer>
+
+          <secondary-drawer ref={secondaryDrawerRef} style={{ width: `${drawerWidths.right}px`, ...(layoutConfig?.components?.styles?.SecondaryDrawer || {}) }}> {renderSection(layoutConfig?.components, 'SecondaryDrawer')} </secondary-drawer>
+        
         </editor-group>
+        
       </StyledMain>
-      <StyledFooter style={layoutConfig?.components?.styles?.Footer}>
-        {renderSection(layoutConfig?.components, 'Footer')}
-      </StyledFooter>
+
+      <StyledFooter style={layoutConfig?.components?.styles?.Footer}> {renderSection(layoutConfig?.components, 'Footer')} </StyledFooter>
     </>
   );
 };
-
-export default Layout;
 
 function renderSection(components, section) {
   const SectionComponent = components?.[section];
