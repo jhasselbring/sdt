@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { initializeDatabase, run, get, all, closeDb } from './database.js';
 import isDev from 'electron-is-dev';
 import fs from 'node:fs';
+import { registerIpcHandlers } from './InterProcess.js';
 
 const checkSquirrelStartup = async () => {
   try {
@@ -101,55 +102,11 @@ const createWindow = async () => {
   }
 };
 
+// Register IPC handlers and pass a getter for mainWindowRef
+registerIpcHandlers(() => mainWindowRef);
+
 app.on('ready', () => {
   createWindow();
-});
-
-// IPC handlers for database operations
-ipcMain.handle('db:run', async (_, sql, params) => {
-  try {
-    const result = await run(sql, params);
-    return { success: true, data: result };
-  } catch (error) {
-    console.error('Database run error:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
-  }
-});
-
-ipcMain.handle('db:get', async (_, sql, params) => {
-  try {
-    const result = await get(sql, params);
-    return { success: true, data: result };
-  } catch (error) {
-    console.error('Database get error:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
-  }
-});
-
-ipcMain.handle('db:all', async (_, sql, params) => {
-  try {
-    const result = await all(sql, params);
-    return { success: true, data: result };
-  } catch (error) {
-    console.error('Database all error:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
-  }
-});
-
-// Window control IPC handlers
-ipcMain.on('window:minimize', () => {
-  console.log('window:minimize received');
-  mainWindowRef?.minimize();
-});
-ipcMain.on('window:close', () => {
-  console.log('window:close received');
-  mainWindowRef?.close();
-});
-ipcMain.on('window:maximize', () => {
-  console.log('window:maximize received');
-  if (mainWindowRef) {
-    mainWindowRef.isMaximized() ? mainWindowRef.unmaximize() : mainWindowRef.maximize();
-  }
 });
 
 app.on('window-all-closed', () => {
@@ -164,16 +121,4 @@ app.on('activate', () => {
 
 app.on('will-quit', () => {
   closeDb();
-});
-
-ipcMain.on('app:clearUserData', () => {
-  const userData = app.getPath('userData');
-  try {
-    fs.rmSync(userData, { recursive: true, force: true });
-    console.log('Cleared userData directory:', userData);
-  } catch (e) {
-    console.error('Failed to clear userData:', e);
-  }
-  app.relaunch();
-  app.exit();
 });
