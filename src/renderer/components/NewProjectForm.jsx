@@ -78,19 +78,20 @@ const NewProjectWizardModal = ({ onClose, onCreate }) => {
   const [name, setName] = useState('');
   const [inputDir, setInputDir] = useState('');
   const [outputDir, setOutputDir] = useState('');
+  const [projectSaveLocation, setProjectSaveLocation] = useState('');
   const [maxHeight, setMaxHeight] = useState('');
   const [maxWidth, setMaxWidth] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name.trim() || !inputDir.trim() || !outputDir.trim()) {
-      setError('Project name, input and output directories are required.');
+    if (!name.trim() || !inputDir.trim() || !outputDir.trim() || !projectSaveLocation.trim()) {
+      setError('Project name, input, output, and save location directories are required.');
       return;
     }
 
-    const parsedHeight = maxHeight ? parseInt(maxHeight, 10) : null;
-    const parsedWidth = maxWidth ? parseInt(maxWidth, 10) : null;
+    const parsedHeight = maxHeight ? parseInt(maxHeight, 10) : 512;
+    const parsedWidth = maxWidth ? parseInt(maxWidth, 10) : 512;
 
     if ((maxHeight && isNaN(parsedHeight)) || (maxWidth && isNaN(parsedWidth))) {
       setError('Max height and width must be valid numbers.');
@@ -103,6 +104,7 @@ const NewProjectWizardModal = ({ onClose, onCreate }) => {
         name,
         inputDir,
         outputDir,
+        projectSaveLocation,
         maxHeight: parsedHeight,
         maxWidth: parsedWidth,
       });
@@ -126,21 +128,69 @@ const NewProjectWizardModal = ({ onClose, onCreate }) => {
         </div>
         <div>
           <Label htmlFor="input-dir">Input Directory</Label>
-          <Input
-            id="input-dir"
-            value={inputDir}
-            onChange={e => setInputDir(e.target.value)}
-            placeholder="e.g. C:/Users/You/Images"
-          />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Input
+              id="input-dir"
+              value={inputDir}
+              onChange={e => setInputDir(e.target.value)}
+              placeholder="e.g. C:/Users/You/Images"
+              style={{ flex: 1 }}
+            />
+            <Button
+              type="button"
+              onClick={async () => {
+                const dir = await window.electronAPI?.selectDirectory?.();
+                if (dir) setInputDir(dir);
+              }}
+              style={{ padding: '8px 12px', minWidth: 0 }}
+            >
+              Browse
+            </Button>
+          </div>
         </div>
         <div>
           <Label htmlFor="output-dir">Output Directory</Label>
-          <Input
-            id="output-dir"
-            value={outputDir}
-            onChange={e => setOutputDir(e.target.value)}
-            placeholder="e.g. C:/Users/You/Output"
-          />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Input
+              id="output-dir"
+              value={outputDir}
+              onChange={e => setOutputDir(e.target.value)}
+              placeholder="e.g. C:/Users/You/Output"
+              style={{ flex: 1 }}
+            />
+            <Button
+              type="button"
+              onClick={async () => {
+                const dir = await window.electronAPI?.selectDirectory?.();
+                if (dir) setOutputDir(dir);
+              }}
+              style={{ padding: '8px 12px', minWidth: 0 }}
+            >
+              Browse
+            </Button>
+          </div>
+        </div>
+        <div>
+          <Label htmlFor="project-save-location">Project Save Location</Label>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Input
+              id="project-save-location"
+              value={projectSaveLocation}
+              onChange={e => setProjectSaveLocation(e.target.value)}
+              placeholder="e.g. C:/Users/You/Projects/MyProject"
+              style={{ flex: 1 }}
+            />
+            <Button
+              type="button"
+              onClick={async () => {
+                const dir = await window.electronAPI?.selectDirectory?.();
+                if (dir) setProjectSaveLocation(dir);
+              }}
+              style={{ padding: '8px 12px', minWidth: 0 }}
+            >
+              Browse
+            </Button>
+          </div>
         </div>
         <div>
           <Label htmlFor="max-height">Max Height (px)</Label>

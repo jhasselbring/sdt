@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     close: () => { console.log('close called'); ipcRenderer.send('window:close'); },
   },
   clearUserData: () => ipcRenderer.send('app:clearUserData'),
+  selectDirectory: () => ipcRenderer.invoke('dialog:selectDirectory'),
 });
 
 console.log('Preload script loaded.');

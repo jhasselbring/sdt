@@ -67,6 +67,17 @@ export function registerIpcHandlers(mainWindowGetter) {
     app.relaunch();
     app.exit();
   });
+
+  ipcMain.handle('dialog:selectDirectory', async (event) => {
+    const { dialog } = await import('electron');
+    const win = mainWindowGetter();
+    const result = await dialog.showOpenDialog(win, {
+      properties: ['openDirectory'],
+      title: 'Select Directory',
+    });
+    if (result.canceled) return null;
+    return result.filePaths[0];
+  });
 }
 
 export function setMainWindowRef(ref) {
