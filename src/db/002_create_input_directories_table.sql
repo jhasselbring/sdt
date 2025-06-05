@@ -1,8 +1,0 @@
-CREATE TABLE input_directories (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    path TEXT NOT NULL UNIQUE,
-    recursive INTEGER NOT NULL DEFAULT 1,
-    ignored INTEGER NOT NULL DEFAULT 0,
-    created_at INTEGER NOT NULL,
-    updated_at INTEGER NOT NULL
-);

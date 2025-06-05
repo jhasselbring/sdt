@@ -14,33 +14,8 @@ export function initializeDatabase(dbPath) {
   const fullDbPath = path.resolve(dbPath);
   console.log(`Initializing database at: ${fullDbPath}`);
   db = new Database(fullDbPath); // Assign to global db
-  try {
-    db.pragma('journal_mode = WAL');
-
-    // Run migrations
-    const migrationsPath = path.join(__dirname, '../db');
-    const migrationFiles = fs.readdirSync(migrationsPath)
-      .filter(file => file.endsWith('.sql'))
-      .sort();
-
-    const runMigrations = db.transaction(() => {
-      for (const migrationFile of migrationFiles) {
-        const sql = fs.readFileSync(path.join(migrationsPath, migrationFile), 'utf8');
-        db.exec(sql);
-        console.log(`Ran migration: ${migrationFile}`);
-      }
-    });
-    runMigrations();
-
-    console.log('Database initialized and migrations applied.');
-  } catch (error) {
-    console.error('Error during database initialization or migration:', error);
-    if (db) {
-      db.close();
-      db = null;
-    }
-    throw error; // Re-throw the error to signal failure
-  }
+  db.pragma('journal_mode = WAL');
+  
 }
 
 export function getDb() {
@@ -90,24 +65,102 @@ export function initializeProjectDatabase(filePath, metadata) {
       );
     `);
 
+    // Handle inputDir and prepare metadata for the 'meta' table
+    let initialDirs = [];
+    const inputDirKey = 'inputDir'; // Standardized key based on user feedback
+
+    if (metadata && metadata.hasOwnProperty(inputDirKey)) {
+      const inputDirValue = metadata[inputDirKey];
+      if (typeof inputDirValue === 'string' && inputDirValue.trim() !== '') {
+        initialDirs = [inputDirValue.trim()];
+      } else if (Array.isArray(inputDirValue)) {
+        initialDirs = inputDirValue.map(dir => typeof dir === 'string' ? dir.trim() : null).filter(Boolean);
+      }
+    }
+
+    const metaTableData = { ...metadata };
+    // Remove inputDir from the object that will be saved to the 'meta' table
+    if (metaTableData.hasOwnProperty(inputDirKey)) {
+      delete metaTableData[inputDirKey];
+    }
+
     const insertMeta = projectDbInstance.prepare(`
       INSERT INTO meta (key, value) VALUES (@key, @value)
       ON CONFLICT(key) DO UPDATE SET value = excluded.value;
     `);
 
-    const insertAllMetadata = projectDbInstance.transaction((entries) => {
+    const insertAllMetadataTransaction = projectDbInstance.transaction((entries) => {
       for (const entry of entries) insertMeta.run(entry);
     });
 
-    const metadataEntries = Object.entries(metadata).map(([key, value]) => ({ 
+    const metadataEntries = Object.entries(metaTableData).map(([key, value]) => ({
       key,
-      value: String(value)
+      value: String(value) // Ensure value is a string for the meta table
     }));
 
-    insertAllMetadata(metadataEntries);
+    insertAllMetadataTransaction(metadataEntries);
     console.log('Project meta table initialized successfully.');
+
+    // Add creation for other tables as per idea.md
+    projectDbInstance.exec(`
+      CREATE TABLE IF NOT EXISTS input_directories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        path TEXT UNIQUE NOT NULL,
+        date_added TEXT NOT NULL
+      );
+
+      CREATE TABLE IF NOT EXISTS input_files (
+        id TEXT PRIMARY KEY, -- md5(absolute_path)
+        input_dir_id INTEGER NOT NULL,
+        absolute_path TEXT UNIQUE NOT NULL,
+        relative_path TEXT NOT NULL,
+        content_hash TEXT, -- md5(file content)
+        date_added TEXT NOT NULL,
+        date_modified TEXT,
+        status TEXT DEFAULT 'new', -- e.g., new, updated, missing, found
+        processed BOOLEAN DEFAULT 0,
+        completed_manually BOOLEAN DEFAULT 0,
+        FOREIGN KEY (input_dir_id) REFERENCES input_directories(id) ON DELETE CASCADE
+      );
+
+      CREATE TABLE IF NOT EXISTS tags (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tag TEXT UNIQUE NOT NULL,
+        used_count INTEGER DEFAULT 0,
+        last_used TEXT
+      );
+    `);
+    console.log('Project tables (input_directories, input_files, tags) created successfully.');
+
+    // Insert initialInputDirs if any
+    if (initialDirs.length > 0) {
+      const insertInputDir = projectDbInstance.prepare(`
+        INSERT INTO input_directories (path, date_added)
+        VALUES (@path, @date_added)
+        ON CONFLICT(path) DO NOTHING; -- If a path is already listed, ignore it.
+      `);
+
+      const insertAllInputDirsTransaction = projectDbInstance.transaction((dirs) => {
+        const now = new Date().toISOString();
+        for (const dirPath of dirs) {
+          if (typeof dirPath === 'string' && dirPath.trim() !== '') {
+            try {
+              insertInputDir.run({ path: dirPath.trim(), date_added: now });
+            } catch (err) {
+              console.warn(`Could not insert initial directory '${dirPath}': ${err.message}`);
+            }
+          } else {
+            console.warn(`Skipping invalid initial directory entry: ${dirPath}`);
+          }
+        }
+      });
+
+      insertAllInputDirsTransaction(initialDirs);
+      console.log('Initial input directories processed.');
+    }
+
   } catch (error) {
-    console.error('Error initializing project meta table:', error);
+    console.error('Error initializing project database structure or initial data:', error); // More generic error message
     projectDbInstance.close(); // Ensure the temp instance is closed on error
     throw error; // Propagate the error
   } finally {
