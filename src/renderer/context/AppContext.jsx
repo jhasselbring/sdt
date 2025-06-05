@@ -61,17 +61,23 @@ const initialState = {
     }
   },
   projectData: {
-    inputs: {
+    meta: [
       /**
-       * dirRootName:[
-       * 'full/path/to/image1.jpg',
-       * 'full/path/to/image2.jpg',
-       * ]
+      * {
+       *  key: 'name',
+       *  value: 'Dev'
+       * },
+       * {
+       *  key: 'inputDir',
+       *  value: 'full/path/to/input/dir1'
+       * },       * {
+       *  key: 'inputDir',
+       *  value: 'full/path/to/input/dir2'
+       * }
        */
-    },
-    outputs: [
-      // 'full/path/to/output1.jpg',
     ],
+    files: [],
+    tokens:[]
   },
   projectMeta: {
     name: '',
