@@ -7,8 +7,25 @@ contextBridge.exposeInMainWorld('electronAPI', {
     maximize: () => { console.log('maximize called'); ipcRenderer.send('window:maximize'); },
     close: () => { console.log('close called'); ipcRenderer.send('window:close'); },
   },
-  clearUserData: () => ipcRenderer.send('app:clearUserData'),
-  selectDirectory: () => ipcRenderer.invoke('dialog:selectDirectory'),
+  fileSystem: {
+    selectDirectory: () => {
+      console.log('selectDirectory called from preload.js');
+      return ipcRenderer.invoke('dialog:selectDirectory')
+    },
+    saveProjectFile: (suggestedName) => {
+      console.log('saveProjectFile called from preload.js', suggestedName);
+      return ipcRenderer.invoke('dialog:saveProjectFile', suggestedName);
+    },
+  },
+  data: {
+    clearUserData: () => ipcRenderer.send('app:clearUserData'),
+    createProject: (projectData) => {
+      console.log('createProject called from preload.js with invoke', projectData);
+      return ipcRenderer.invoke('app:createProject', projectData);
+    },
+  },
+
+
 });
 
 console.log('Preload script loaded.');

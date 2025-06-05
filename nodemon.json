@@ -1,0 +1,7 @@
+{
+    "watch": ["src/main"],
+    "ext": "js,ts,mjs,cjs,json",
+    "exec": "npx electron .",
+    "signal": "SIGTERM"
+  }
+  

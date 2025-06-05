@@ -1,5 +1,6 @@
-import { ipcMain, app } from 'electron';
-import { run, get, all, closeDb } from './database.js';
+import { ipcMain, app, dialog } from 'electron';
+import path from 'path';
+import { run, get, all, closeDb, initializeProjectDatabase } from './database.js';
 import fs from 'node:fs';
 
 let mainWindowRef = null;
@@ -69,7 +70,6 @@ export function registerIpcHandlers(mainWindowGetter) {
   });
 
   ipcMain.handle('dialog:selectDirectory', async (event) => {
-    const { dialog } = await import('electron');
     const win = mainWindowGetter();
     const result = await dialog.showOpenDialog(win, {
       properties: ['openDirectory'],
@@ -77,6 +77,66 @@ export function registerIpcHandlers(mainWindowGetter) {
     });
     if (result.canceled) return null;
     return result.filePaths[0];
+  });
+
+  ipcMain.handle('dialog:saveProjectFile', async (event, suggestedName) => {
+    const win = mainWindowGetter();
+    const result = await dialog.showSaveDialog(win, {
+      title: 'Save Project File',
+      defaultPath: suggestedName,
+      filters: [{ name: 'SDT Project', extensions: ['sdt'] }],
+    });
+    if (result.canceled) return null;
+    return result.filePath;
+  });
+
+  ipcMain.handle('app:createProject', async (event, projectData) => {
+    const { inputDir, maxHeight, maxWidth, name, outputDir, projectSaveLocation } = projectData;
+
+    // Validate required fields
+    if (!inputDir?.trim() || !fs.existsSync(inputDir)) {
+      return { success: false, error: 'Input directory is required and must exist' };
+    }
+    if (!outputDir?.trim() || !fs.existsSync(outputDir)) {
+      return { success: false, error: 'Output directory is required and must exist' };
+    }
+    if (!projectSaveLocation?.trim() || !fs.existsSync(path.dirname(projectSaveLocation))) {
+      return { success: false, error: 'Project save location is required and parent directory must exist' };
+    }
+    if (!name?.trim()) {
+      return { success: false, error: 'Project name is required' };
+    }
+    if (!maxHeight || isNaN(maxHeight) || maxHeight <= 0) {
+      return { success: false, error: 'Max height must be a positive number' };
+    }
+    if (!maxWidth || isNaN(maxWidth) || maxWidth <= 0) {
+      return { success: false, error: 'Max width must be a positive number' };
+    }
+
+    if (fs.existsSync(projectSaveLocation)) {
+      return { success: false, error: 'Project file already exists. Please choose a different location or change the file name.' };
+    }
+    // No need to create a directory, just write the file
+    try {
+      // Create project config (metadata for the database)
+      const projectMetadata = {
+        name,
+        inputDir,
+        outputDir,
+        maxHeight,
+        maxWidth,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      initializeProjectDatabase(projectSaveLocation, projectMetadata);
+      
+      console.log('Project database created successfully at:', projectSaveLocation);
+      return { success: true, data: { projectSaveLocation } };
+    } catch (error) {
+      console.error('Failed to create project database:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Failed to create project database' };
+    }
   });
 }
 

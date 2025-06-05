@@ -11,7 +11,7 @@ export default function HeaderControls() {
     return (
         <>
             <div style={{ background: 'none', border: 'none', padding: 0, marginLeft: 8, borderRadius: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'background 0.18s', WebkitAppRegion: 'no-drag' }} title="Reset App" aria-label="Reset App" onClick={() => {
-                window.electronAPI?.clearUserData?.();
+                window.electronAPI?.data?.clearUserData?.();
             }}>
                 <ResetIcon />
             </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 const ModalContainer = styled.div.attrs({
@@ -74,16 +74,16 @@ const Button = styled.button`
   }
 `;
 
-const NewProjectWizardModal = ({ onClose, onCreate }) => {
+const NewProjectForm = ({ onClose }) => {
   const [name, setName] = useState('');
   const [inputDir, setInputDir] = useState('');
   const [outputDir, setOutputDir] = useState('');
   const [projectSaveLocation, setProjectSaveLocation] = useState('');
-  const [maxHeight, setMaxHeight] = useState('');
-  const [maxWidth, setMaxWidth] = useState('');
+  const [maxHeight, setMaxHeight] = useState(512);
+  const [maxWidth, setMaxWidth] = useState(512);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim() || !inputDir.trim() || !outputDir.trim() || !projectSaveLocation.trim()) {
       setError('Project name, input, output, and save location directories are required.');
@@ -98,9 +98,10 @@ const NewProjectWizardModal = ({ onClose, onCreate }) => {
       return;
     }
 
-    setError('');
-    if (onCreate) {
-      onCreate({
+    setError(''); // Clear previous errors
+
+    try {
+      const result = await window.electronAPI?.data?.createProject?.({
         name,
         inputDir,
         outputDir,
@@ -108,6 +109,16 @@ const NewProjectWizardModal = ({ onClose, onCreate }) => {
         maxHeight: parsedHeight,
         maxWidth: parsedWidth,
       });
+
+      if (result && result.success) {
+        console.log('Project created successfully:', result.data);
+        onClose(); // Close modal on success
+      } else {
+        setError(result?.error || 'Failed to create project. Unknown error.');
+      }
+    } catch (err) {
+      console.error('Error calling createProject:', err);
+      setError(err.message || 'An unexpected error occurred during project creation.');
     }
   };
 
@@ -139,7 +150,7 @@ const NewProjectWizardModal = ({ onClose, onCreate }) => {
             <Button
               type="button"
               onClick={async () => {
-                const dir = await window.electronAPI?.selectDirectory?.();
+                const dir = await window.electronAPI?.fileSystem?.selectDirectory?.();
                 if (dir) setInputDir(dir);
               }}
               style={{ padding: '8px 12px', minWidth: 0 }}
@@ -161,7 +172,7 @@ const NewProjectWizardModal = ({ onClose, onCreate }) => {
             <Button
               type="button"
               onClick={async () => {
-                const dir = await window.electronAPI?.selectDirectory?.();
+                const dir = await window.electronAPI?.fileSystem?.selectDirectory?.();
                 if (dir) setOutputDir(dir);
               }}
               style={{ padding: '8px 12px', minWidth: 0 }}
@@ -177,14 +188,15 @@ const NewProjectWizardModal = ({ onClose, onCreate }) => {
               id="project-save-location"
               value={projectSaveLocation}
               onChange={e => setProjectSaveLocation(e.target.value)}
-              placeholder="e.g. C:/Users/You/Projects/MyProject"
+              placeholder="e.g. C:/Users/You/Projects/MyProject.sdt"
               style={{ flex: 1 }}
             />
             <Button
               type="button"
               onClick={async () => {
-                const dir = await window.electronAPI?.selectDirectory?.();
-                if (dir) setProjectSaveLocation(dir);
+                const suggestedName = name?.trim() ? `${name.trim()}.sdt` : 'project.sdt';
+                const file = await window.electronAPI?.fileSystem?.saveProjectFile?.(suggestedName);
+                if (file) setProjectSaveLocation(file);
               }}
               style={{ padding: '8px 12px', minWidth: 0 }}
             >
@@ -224,4 +236,4 @@ const NewProjectWizardModal = ({ onClose, onCreate }) => {
   );
 };
 
-export default NewProjectWizardModal;
+export default NewProjectForm;
