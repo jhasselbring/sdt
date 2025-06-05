@@ -1,7 +1,11 @@
 import { ipcMain, app, dialog } from 'electron';
 import path from 'path';
-import { run, get, all, closeDb, initializeProjectDatabase } from './database.js';
+import {
+  run, get, all, closeDb, initializeProjectDatabase,
+  getFilesByDirectoryId, getFileByAbsolutePath, insertFile, updateFile, updateFileByPath
+} from './database.js';
 import fs from 'node:fs';
+import { scanInputDirectory, watchInputDirectory } from './services/fileSyncService.js';
 
 let mainWindowRef = null;
 
@@ -129,9 +133,49 @@ export function registerIpcHandlers(mainWindowGetter) {
         updatedAt: new Date().toISOString()
       };
 
-      initializeProjectDatabase(projectSaveLocation, projectMetadata);
+      await initializeProjectDatabase(projectSaveLocation, projectMetadata);
       
-      console.log('Project database created successfully at:', projectSaveLocation);
+      // ---- BEGIN FILE SYNC INITIALIZATION ----
+      // const dbService = {
+      //   getFilesByDirectoryId,
+      //   getFileByAbsolutePath,
+      //   insertFile,
+      //   updateFile,
+      //   updateFileByPath,
+      // };
+      // 
+      // const inputDirectoryPath = projectMetadata.inputDir;
+      // 
+      // if (inputDirectoryPath && typeof inputDirectoryPath === 'string') {
+      //   try {
+      //     const dirRecord = await get('SELECT id FROM input_directories WHERE path = ?', [inputDirectoryPath]);
+      // 
+      //     if (dirRecord && dirRecord.id) {
+      //       const inputDirId = dirRecord.id;
+      //       console.log(`[InterProcess] Starting initial scan for ${inputDirectoryPath} (ID: ${inputDirId})`);
+      //       await scanInputDirectory(inputDirId, inputDirectoryPath, dbService);
+      //       console.log(`[InterProcess] Scan complete for ${inputDirectoryPath}. Initializing watcher...`);
+      //       
+      //       watchInputDirectory(inputDirId, inputDirectoryPath, dbService)
+      //         .then(watcherInstance => {
+      //           console.log(`[InterProcess] Watcher successfully initialized for ${inputDirectoryPath}`);
+      //         })
+      //         .catch(watchError => {
+      //           console.error(`[InterProcess] Error initializing watcher for ${inputDirectoryPath}:`, watchError);
+      //         });
+      // 
+      //     } else {
+      //       console.error(`[InterProcess] Could not find DB record for input directory: ${inputDirectoryPath} after project initialization. File sync might not work.`);
+      //     }
+      //   } catch (syncError) {
+      //     console.error(`[InterProcess] Error during file sync setup for ${inputDirectoryPath}:`, syncError);
+      //   }
+      // } else {
+      //   console.warn('[InterProcess] No valid inputDir (string) specified in projectMetadata during project creation. Skipping file sync setup.');
+      // }
+      // ---- END FILE SYNC INITIALIZATION ----
+
+      // console.log('Project database created successfully at:', projectSaveLocation); // Log moved to initializeDatabase
       return { success: true, data: { projectSaveLocation } };
     } catch (error) {
       console.error('Failed to create project database:', error);

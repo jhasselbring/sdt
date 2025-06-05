@@ -120,7 +120,7 @@ export async function scanInputDirectory(
           // New file not in DB for this path
           if (currentContentHash !== null) {
             console.log(`[FileSync] New file detected: ${entryPath}`);
-            await dbService.insertFile({
+            const fileDataToInsert = {
               id: fileId,
               input_dir_id: inputDirId,
               absolute_path: entryPath,
@@ -131,7 +131,9 @@ export async function scanInputDirectory(
               status: 'new',
               processed: false,
               completed_manually: false,
-            });
+            };
+            console.log('[FileSync] Inspecting fileDataToInsert before insert:', JSON.stringify(fileDataToInsert, null, 2)); // DEBUG LINE
+            await dbService.insertFile(fileDataToInsert);
           } else {
             console.log(`[FileSync] New file detected but inaccessible: ${entryPath}`);
             // Optionally, insert with 'missing' status or skip
