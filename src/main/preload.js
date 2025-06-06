@@ -23,6 +23,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
       console.log('createProject called from preload.js with invoke', projectData);
       return ipcRenderer.invoke('app:createProject', projectData);
     },
+    getAllInputDirectories: () => {
+      console.log('getAllInputDirectories called from preload.js');
+      return ipcRenderer.invoke('db:get-all-input-directories');
+    },
+    getFilesInDirectory: (directoryId) => {
+      console.log(`getFilesInDirectory called from preload.js for dirId: ${directoryId}`);
+      return ipcRenderer.invoke('db:get-files-in-directory', directoryId);
+    },
   },
 
 

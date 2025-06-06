@@ -5,25 +5,30 @@
 
 import React from 'react';
 import '@vscode/codicons/dist/codicon.css';
+import InputFileViewer from './drawers/InputFileViewer';
+import { useAppContext } from '../context/AppContext';
 
-// Codicon icon class names for VSCode-like navigation
-const icons = [
-  { label: 'Explorer', iconClass: 'codicon codicon-files' },
-  { label: 'Search', iconClass: 'codicon codicon-search' },
-  { label: 'Source Control', iconClass: 'codicon codicon-source-control' },
-  { label: 'Run', iconClass: 'codicon codicon-run' },
-  { label: 'Extensions', iconClass: 'codicon codicon-extensions' },
-];
+
+
 
 /**
  * Nav component (VSCode-style placeholder)
  * Displays a vertical set of navigation icons with labels as tooltips.
  */
 export default function Nav() {
+  const { mountComponent } = useAppContext();
+  // Codicon icon class names for VSCode-like navigation
+  const items = [
+    { label: 'Explorer', iconClass: 'codicon codicon-files', onClick: () => mountComponent(InputFileViewer, 'PrimaryDrawer') },
+    { label: 'Search', iconClass: 'codicon codicon-search' },
+    { label: 'Source Control', iconClass: 'codicon codicon-source-control' },
+    { label: 'Run', iconClass: 'codicon codicon-run' },
+    { label: 'Extensions', iconClass: 'codicon codicon-extensions' },
+  ];
   return (
     <nav style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0', color: '#aaa', gap: '1.5rem' }}>
       {/* VSCode-like navigation icons using codicons */}
-      {icons.map(({ label, iconClass }) => (
+      {items.map(({ label, iconClass, onClick }) => (
         <div
           key={label}
           title={label}
@@ -33,6 +38,7 @@ export default function Nav() {
           onBlur={e => e.currentTarget.style.background = 'transparent'}
           onMouseOver={e => e.currentTarget.style.background = '#222'}
           onMouseOut={e => e.currentTarget.style.background = 'transparent'}
+          onClick={onClick}
         >
           <span className={iconClass} style={{ fontSize: 24, display: 'block' }} />
         </div>

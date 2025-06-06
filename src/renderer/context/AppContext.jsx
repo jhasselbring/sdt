@@ -167,6 +167,22 @@ export function AppProvider({ children }) {
       return after;
     });
 
+  // Mount a new component to a target section
+  const mountComponent = (NewComponent, target) => {
+    setState((s) => {
+      const before = s;
+      const after = {
+        ...s,
+        componentSections: {
+          ...s.componentSections,
+          [target]: NewComponent,
+        },
+      };
+      console.log('mountComponent', { target, before, after });
+      return after;
+    });
+  };
+
   return (
     <AppContext.Provider value={{
       state,
@@ -176,6 +192,7 @@ export function AppProvider({ children }) {
       togglePrimaryDrawer,
       toggleSecondaryDrawer,
       toggleConsole,
+      mountComponent,
     }}>
       {children}
     </AppContext.Provider>

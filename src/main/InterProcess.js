@@ -182,6 +182,34 @@ export function registerIpcHandlers(mainWindowGetter) {
       return { success: false, error: error instanceof Error ? error.message : 'Failed to create project database' };
     }
   });
+
+  // ---- BEGIN NEW IPC HANDLERS FOR InputFileViewer ----
+  ipcMain.handle('db:get-all-input-directories', async () => {
+    try {
+      const dirs = await all('SELECT id, path FROM input_directories ORDER BY path');
+      return { success: true, data: dirs };
+    } catch (error) {
+      console.error('Error fetching all input directories:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('db:get-files-in-directory', async (_, directoryId) => {
+    if (directoryId === null || typeof directoryId === 'undefined') {
+      return { success: false, error: 'directoryId is required' };
+    }
+    try {
+      const files = await all(
+        'SELECT id, absolute_path, relative_path, status, content_hash FROM input_files WHERE input_dir_id = ? ORDER BY relative_path',
+        [directoryId]
+      );
+      return { success: true, data: files };
+    } catch (error) {
+      console.error(`Error fetching files for directory ID ${directoryId}:`, error);
+      return { success: false, error: error.message };
+    }
+  });
+  // ---- END NEW IPC HANDLERS FOR InputFileViewer ----
 }
 
 export function setMainWindowRef(ref) {

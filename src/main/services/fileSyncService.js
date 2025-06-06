@@ -190,7 +190,7 @@ export async function watchInputDirectory(
 
   const handleFileChange = async (filePath, eventType) => { // filePath: string, eventType: 'add' | 'change' | 'unlink'
     const absolutePath = path.resolve(filePath); // Ensure canonical path
-    
+
     try {
       const stats = await fs.lstat(absolutePath).catch(() => null);
       if (eventType !== 'unlink' && (!stats || !stats.isFile() || !isSupportedFile(absolutePath))) {
@@ -209,12 +209,12 @@ export async function watchInputDirectory(
         return; // Don't add inaccessible files initially
       }
       const fileId = calculatePathHash(absolutePath);
-      
+
       const existingRecord = await dbService.getFileByAbsolutePath(absolutePath);
       if (existingRecord) {
         if (existingRecord.status === 'missing') {
           if (existingRecord.content_hash === currentContentHash) {
-             console.log(`[FileSync Watcher] File re-added (was missing, content same): ${absolutePath}`);
+            console.log(`[FileSync Watcher] File re-added (was missing, content same): ${absolutePath}`);
             await dbService.updateFileByPath(absolutePath, {
               status: 'found',
               date_modified: now,
@@ -231,14 +231,14 @@ export async function watchInputDirectory(
             });
           }
         } else {
-           console.warn(`[FileSync Watcher] 'add' event for already existing (not missing) file record: ${absolutePath}. Updating content.`);
-           await dbService.updateFileByPath(absolutePath, {
-              content_hash: currentContentHash,
-              date_modified: now,
-              status: 'updated',
-              processed: false,
-              completed_manually: false,
-            });
+          console.warn(`[FileSync Watcher] 'add' event for already existing (not missing) file record: ${absolutePath}. Updating content.`);
+          await dbService.updateFileByPath(absolutePath, {
+            content_hash: currentContentHash,
+            date_modified: now,
+            status: 'updated',
+            processed: false,
+            completed_manually: false,
+          });
         }
       } else {
         console.log(`[FileSync Watcher] New file added: ${absolutePath}`);
@@ -258,9 +258,9 @@ export async function watchInputDirectory(
     } else if (eventType === 'change') {
       const currentContentHash = await calculateFileContentHash(absolutePath);
       if (currentContentHash === null) {
-         console.log(`[FileSync Watcher] Changed file now inaccessible: ${absolutePath}. Marking as missing.`);
-         await dbService.updateFileByPath(absolutePath, { status: 'missing', content_hash: null, date_modified: now });
-         return;
+        console.log(`[FileSync Watcher] Changed file now inaccessible: ${absolutePath}. Marking as missing.`);
+        await dbService.updateFileByPath(absolutePath, { status: 'missing', content_hash: null, date_modified: now });
+        return;
       }
       console.log(`[FileSync Watcher] File changed: ${absolutePath}`);
       await dbService.updateFileByPath(absolutePath, {
@@ -291,7 +291,7 @@ export async function watchInputDirectory(
     .on('unlink', (p) => handleFileChange(p, 'unlink'))
     .on('error', error => console.error(`[FileSync Watcher] Error: ${error}`))
     .on('ready', () => console.log(`[FileSync Watcher] Initial scan complete, ready for changes in ${directoryPath}.`));
-  
+
   return watcher;
 }
 

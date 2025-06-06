@@ -3,6 +3,7 @@ import './App.css';
 
 import Header from './components/Header';
 import Nav from './components/Nav';
+import InputFileViewer from './components/drawers/InputFileViewer';
 
 import { useAppContext } from './context/AppContext.jsx';
 import { useEffect } from 'react';
