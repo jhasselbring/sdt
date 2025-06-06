@@ -25,6 +25,7 @@ if (process.platform === 'win32') {
 }
 
 let mainWindowRef;
+global.mainWindowRef = null;
 const windowStatePath = path.join(app.getPath('userData'), 'window-state.json');
 
 function loadWindowState() {
@@ -91,6 +92,7 @@ const createWindow = async () => {
 
   const mainWindow = new BrowserWindow(windowOptions);
   mainWindowRef = mainWindow;
+  global.mainWindowRef = mainWindow;
 
   mainWindow.on('close', () => saveWindowState(mainWindow));
 

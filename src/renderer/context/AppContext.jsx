@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import GetStarted from '../components/GetStarted';
 import EmptyDrawer from '../components/drawers/EmptyDrawer';
 import '@vscode/codicons/dist/codicon.css';
@@ -182,6 +182,28 @@ export function AppProvider({ children }) {
       return after;
     });
   };
+
+  // Update state from DB data sent via IPC
+  const updateFromDb = (dbData) => {
+    setState((s) => ({
+      ...s,
+      projectData: {
+        ...s.projectData,
+        meta: dbData.meta || [],
+        files: dbData.files || [],
+      },
+      projectMeta: {
+        ...s.projectMeta,
+        inputDirs: dbData.inputDirs?.map(d => d.path) || [],
+      }
+    }));
+  };
+
+  useEffect(() => {
+    if (window.electronAPI?.onDbUpdated) {
+      window.electronAPI.onDbUpdated(updateFromDb);
+    }
+  }, []);
 
   return (
     <AppContext.Provider value={{

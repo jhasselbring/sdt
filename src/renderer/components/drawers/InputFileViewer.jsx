@@ -8,6 +8,7 @@ const ViewerContainer = styled.div`
   height: 100%;
   overflow-y: auto;
   color: #8c8a8c;
+  width: 100vw;
 `;
 
 const DirectorySection = styled.div`

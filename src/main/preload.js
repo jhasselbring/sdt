@@ -32,8 +32,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
       return ipcRenderer.invoke('db:get-files-in-directory', directoryId);
     },
   },
-
-
+  onDbUpdated: (callback) => ipcRenderer.on('db-updated', (event, data) => callback(data)),
 });
 
 console.log('Preload script loaded.');

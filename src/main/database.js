@@ -4,6 +4,8 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'url';
 import { scanInputDirectory, watchInputDirectory } from './services/fileSyncService.js';
+import { BrowserWindow } from 'electron';
+import { app } from 'electron';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -222,6 +224,14 @@ export async function updateFileByPath(absolutePath, updates) {
 }
 // End functions for fileSyncService
 
+export function notifyDbUpdated(mainWindow) {
+  if (!db || !mainWindow) return;
+  const inputDirs = all('SELECT * FROM input_directories');
+  const files = all('SELECT * FROM input_files');
+  const meta = all('SELECT * FROM meta');
+  mainWindow.webContents.send('db-updated', { inputDirs, files, meta });
+}
+
 export async function initializeProjectDatabase(filePath, metadata) {
   // Step 1: Create and populate the new project database file with its meta table
   const projectDbInstance = new Database(filePath);
@@ -338,6 +348,7 @@ export async function initializeProjectDatabase(filePath, metadata) {
   // Step 2: Now, make this newly created and seeded database the global active one.
   // initializeDatabase will handle closing any previous global db, opening this one,
   // setting WAL mode, and running all standard migrations AND NOW FILE SYNC.
-  await initializeDatabase(filePath); // Added await
-  // console.log(`Project database ${filePath} is now the active database.`); // This log is now in initializeDatabase
+  await initializeDatabase(filePath);
+  // Notify renderer after DB is ready
+  if (global.mainWindowRef) notifyDbUpdated(global.mainWindowRef);
 }
