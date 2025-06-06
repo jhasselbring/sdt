@@ -58,7 +58,7 @@ const GlobalStateViewer = () => {
             wordBreak: 'break-all',
           }}
         >
-          {JSON.stringify(state, null, 2)}
+          {JSON.stringify(state, null, 8)}
         </SyntaxHighlighter>
       </NoTextShadow>
     </ViewerContainer>
