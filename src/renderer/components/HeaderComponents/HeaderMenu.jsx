@@ -78,9 +78,14 @@ export default function HeaderMenu() {
                     }
                 }));
             },
-            "Open Project": () => {
-                // TODO: Implement Open Project logic
-                alert('Open Project clicked');
+            "Open Project": async () => {
+                const result = await window.electronAPI?.fileSystem?.openFile?.();
+                if (result && !result.canceled && result.filePaths?.length) {
+                    console.log('Selected project file:', result.filePaths[0]);
+                    // TODO: Load the project file here
+                } else {
+                    console.log('Open Project canceled or no file selected');
+                }
             }
         },
         "View": {

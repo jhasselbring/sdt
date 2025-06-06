@@ -209,6 +209,21 @@ export function registerIpcHandlers(mainWindowGetter) {
       return { success: false, error: error.message };
     }
   });
+
+  ipcMain.handle('dialog:openFile', async (event, options = {}) => {
+    const win = mainWindowGetter();
+    const result = await dialog.showOpenDialog(win, {
+      title: 'Open Project File',
+      properties: ['openFile'],
+      filters: [
+        { name: 'SQLite Project Files', extensions: ['sqlite', 'db', 'sdt'] },
+        { name: 'All Files', extensions: ['*'] }
+      ],
+      ...options
+    });
+    if (result.canceled) return { canceled: true };
+    return { canceled: false, filePaths: result.filePaths };
+  });
   // ---- END NEW IPC HANDLERS FOR InputFileViewer ----
 }
 

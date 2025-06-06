@@ -16,6 +16,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
       console.log('saveProjectFile called from preload.js', suggestedName);
       return ipcRenderer.invoke('dialog:saveProjectFile', suggestedName);
     },
+    openFile: (options) => {
+      console.log('openFile called from preload.js', options);
+      return ipcRenderer.invoke('dialog:openFile', options);
+    },
   },
   data: {
     clearUserData: () => ipcRenderer.send('app:clearUserData'),
