@@ -6,6 +6,7 @@
 import React from 'react';
 import '@vscode/codicons/dist/codicon.css';
 import InputFileViewer from './drawers/InputFileViewer';
+import GlobalStateViewer from './drawers/GlobalStateViewer';
 import { useAppContext } from '../context/AppContext';
 
 
@@ -18,8 +19,9 @@ import { useAppContext } from '../context/AppContext';
 export default function Nav() {
   const { mountComponent } = useAppContext();
   // Codicon icon class names for VSCode-like navigation
-  const items = [
+  const navItems = [
     { label: 'Explorer', iconClass: 'codicon codicon-files', onClick: () => mountComponent(InputFileViewer, 'PrimaryDrawer') },
+    { label: 'State', iconClass: 'codicon codicon-database', onClick: () => mountComponent(GlobalStateViewer, 'PrimaryDrawer') },
     { label: 'Search', iconClass: 'codicon codicon-search' },
     { label: 'Source Control', iconClass: 'codicon codicon-source-control' },
     { label: 'Run', iconClass: 'codicon codicon-run' },
@@ -28,7 +30,7 @@ export default function Nav() {
   return (
     <nav style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem 0', color: '#aaa', gap: '1.5rem' }}>
       {/* VSCode-like navigation icons using codicons */}
-      {items.map(({ label, iconClass, onClick }) => (
+      {navItems.map(({ label, iconClass, onClick }) => (
         <div
           key={label}
           title={label}
