@@ -24,7 +24,7 @@ import {
   createSaveProjectFileHandler,
   createOpenFileHandler
 } from './libs/dialogIpcHandlers.js';
-import { createAndSyncProject } from './logicFlow.js';
+import Flow from './logicFlow.js';
 
 let mainWindowRef = null;
 
@@ -65,8 +65,7 @@ export function registerIpcHandlers(mainWindowGetter) {
   });
 
   ipcMain.handle('app:createProject', async (_event, projectData) => {
-    // Handles project creation and file sync using chainable logic.
-    return await createAndSyncProject(projectData);
+    return Flow.createNewAndLoadProject(projectData);
   });
 }
 
