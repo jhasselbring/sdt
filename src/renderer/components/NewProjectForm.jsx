@@ -108,12 +108,13 @@ const NewProjectForm = ({ onClose }) => {
       maxHeight: parsedHeight,
       maxWidth: parsedWidth,
     });
+    console.log(result, 'result from NewProjectForm.jsx');
 
-    if (result && result.success) {
+    if (result && result.error) {
+      setError(result?.error || 'Failed to create project. Unknown error.');
+    } else {
       console.log('Project created successfully:', result.data);
       onClose(); // Close modal on success
-    } else {
-      setError(result?.error || 'Failed to create project. Unknown error.');
     }
   };
 
