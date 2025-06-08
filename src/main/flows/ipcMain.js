@@ -13,18 +13,18 @@ import {
   handleDbAll,
   handleGetAllInputDirectories,
   handleGetFilesInDirectory
-} from './libs/databaseIpcHandlers.js';
+} from '../libs/databaseIpcHandlers.js';
 import {
   createMinimizeHandler,
   createCloseHandler,
   createMaximizeHandler
-} from './libs/windowIpcHandlers.js';
+} from '../libs/windowIpcHandlers.js';
 import {
   createSelectDirectoryHandler,
   createSaveProjectFileHandler,
   createOpenFileHandler
-} from './libs/dialogIpcHandlers.js';
-import Flow from './logicFlow.js';
+} from '../libs/dialogIpcHandlers.js';
+import dataFlow from './dataFlow.js';
 
 let mainWindowRef = null;
 
@@ -65,7 +65,7 @@ export function registerIpcHandlers(mainWindowGetter) {
   });
 
   ipcMain.handle('app:createProject', async (_event, projectData) => {
-    return Flow.createNewAndLoadProject(projectData);
+    return dataFlow.createNewAndLoadProject(projectData);
   });
 }
 

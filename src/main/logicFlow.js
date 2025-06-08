@@ -1,4 +1,3 @@
-import { validateNewProjectData } from './libs/dataHelpers.js';
 import { initializeProjectDatabase, get } from './database.js';
 import { scanInputDirectory, watchInputDirectory } from './services/fileSyncService.js';
 import {
@@ -80,11 +79,3 @@ export async function createAndSyncProject(projectData) {
 
 
 
-export default {
-  createNewAndLoadProject: (projectData) => {
-    return validateNewProjectData(projectData)
-    .catch(err => {
-      return err;
-    });
-  }
-};

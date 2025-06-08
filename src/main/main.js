@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { initializeDatabase, run, get, all, closeDb } from './database.js';
 import isDev from 'electron-is-dev';
 import fs from 'node:fs';
-import { registerIpcHandlers } from './InterProcess.js';
+import { registerIpcHandlers } from './ipcMain.js';
 
 const checkSquirrelStartup = async () => {
   try {
