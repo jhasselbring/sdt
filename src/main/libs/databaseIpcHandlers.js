@@ -5,7 +5,7 @@
  *
  * Usage: Import and register with ipcMain in your main process.
  */
-import { run, get, all } from '../database.js';
+import { run, get, all } from '../tmp/database.js';
 
 /**
  * Handles SQL run queries (INSERT/UPDATE/DELETE).

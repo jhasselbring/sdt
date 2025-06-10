@@ -24,7 +24,7 @@ import {
   createSaveProjectFileHandler,
   createOpenFileHandler
 } from '../libs/dialogIpcHandlers.js';
-import dataFlow from './dataFlow.js';
+import projectCreationFlow from '../controllers/projectCreationFlow.js';
 
 let mainWindowRef = null;
 
@@ -65,7 +65,7 @@ export function registerIpcHandlers(mainWindowGetter) {
   });
 
   ipcMain.handle('app:createProject', async (_event, projectData) => {
-    return dataFlow.createNewAndLoadProject(projectData);
+    return projectCreationFlow.createNewAndLoadProject(projectData);
   });
 }
 

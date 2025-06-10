@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import databaseHelpers from './databaseHelpers.js';
 
 export function validateNewProjectData(projectData) {
     return new Promise((resolve, reject) => {

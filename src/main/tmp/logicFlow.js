@@ -1,5 +1,5 @@
 import { initializeProjectDatabase, get } from './database.js';
-import { scanInputDirectory, watchInputDirectory } from './services/fileSyncService.js';
+import { scanInputDirectory, watchInputDirectory } from '../services/fileSyncService.js';
 import {
   getFilesByDirectoryId,
   getFileByAbsolutePath,

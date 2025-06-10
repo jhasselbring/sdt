@@ -108,7 +108,8 @@ const NewProjectForm = ({ onClose }) => {
       maxHeight: parsedHeight,
       maxWidth: parsedWidth,
     });
-    console.log(result, 'result from NewProjectForm.jsx');
+    console.log('%c@@@ handleSubmit result:', 'color: orange; font-size: 20px; font-weight: bold;', result);
+
 
     if (result && result.error) {
       setError(result?.error || 'Failed to create project. Unknown error.');

@@ -3,12 +3,11 @@ import Database from 'better-sqlite3';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'url';
-import { scanInputDirectory, watchInputDirectory } from './services/fileSyncService.js';
+import { scanInputDirectory, watchInputDirectory } from '../services/fileSyncService.js';
 import { BrowserWindow } from 'electron';
 import { app } from 'electron';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 let db = null;
 
 // Self-contained dbService for use within initializeDatabase
