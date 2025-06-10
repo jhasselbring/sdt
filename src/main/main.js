@@ -1,10 +1,10 @@
 import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import path from 'node:path';
 import { fileURLToPath } from 'url';
-import { initializeDatabase, run, get, all, closeDb } from './database.js';
+import { initializeDatabase, run, get, all, closeDb } from './tmp/database.js';
 import isDev from 'electron-is-dev';
 import fs from 'node:fs';
-import { registerIpcHandlers } from './InterProcess.js';
+import { registerIpcHandlers } from './ipc/ipcMain.js';
 
 const checkSquirrelStartup = async () => {
   try {

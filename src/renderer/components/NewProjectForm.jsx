@@ -100,25 +100,22 @@ const NewProjectForm = ({ onClose }) => {
 
     setError(''); // Clear previous errors
 
-    try {
-      const result = await window.electronAPI?.data?.createProject?.({
-        name,
-        inputDir,
-        outputDir,
-        projectSaveLocation,
-        maxHeight: parsedHeight,
-        maxWidth: parsedWidth,
-      });
+    const result = await window.electronAPI?.data?.createProject?.({
+      name,
+      inputDir,
+      outputDir,
+      projectSaveLocation,
+      maxHeight: parsedHeight,
+      maxWidth: parsedWidth,
+    });
+    console.log('%c@@@ handleSubmit result:', 'color: orange; font-size: 20px; font-weight: bold;', result);
 
-      if (result && result.success) {
-        console.log('Project created successfully:', result.data);
-        onClose(); // Close modal on success
-      } else {
-        setError(result?.error || 'Failed to create project. Unknown error.');
-      }
-    } catch (err) {
-      console.error('Error calling createProject:', err);
-      setError(err.message || 'An unexpected error occurred during project creation.');
+
+    if (result && result.error) {
+      setError(result?.error || 'Failed to create project. Unknown error.');
+    } else {
+      console.log('Project created successfully:', result.data);
+      onClose(); // Close modal on success
     }
   };
 

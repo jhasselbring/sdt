@@ -6,7 +6,7 @@
   "main": "src/main/main.js",
   "scripts": {
     "dev": "vite",
-    "dev:electron": "concurrently \"npm run dev\" \"npx electronmon .\"",
+    "dev:electron": "concurrently \"npm run dev\" \"npx electronmon . --config electronmon.config.js\"",
     "build": "vite build && electron-builder",
     "build:vite": "vite build",
     "start": "npm run build:vite && electron .",
