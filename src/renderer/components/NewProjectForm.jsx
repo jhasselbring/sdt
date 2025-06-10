@@ -75,10 +75,10 @@ const Button = styled.button`
 `;
 
 const NewProjectForm = ({ onClose }) => {
-  const [name, setName] = useState('dev123');
-  const [inputDir, setInputDir] = useState('I:/Tools/Training/SD Training Input/20250604');
-  const [outputDir, setOutputDir] = useState('I:/Tools/Training/SD Training Datasets/20250604');
-  const [projectSaveLocation, setProjectSaveLocation] = useState('I:/Tools/Training/SD Training Projects/dev123.sqlite');
+  const [name, setName] = useState(import.meta.env.VITE_DEV_PROJECT_NAME);
+  const [inputDir, setInputDir] = useState(import.meta.env.VITE_DEV_DIR);
+  const [outputDir, setOutputDir] = useState(import.meta.env.VITE_DEV_DIR);
+  const [projectSaveLocation, setProjectSaveLocation] = useState(import.meta.env.VITE_DEV_DIR + '/' + import.meta.env.VITE_DEV_PROJECT_NAME + '.sqlite');
   const [maxHeight, setMaxHeight] = useState(512);
   const [maxWidth, setMaxWidth] = useState(512);
   const [error, setError] = useState('');

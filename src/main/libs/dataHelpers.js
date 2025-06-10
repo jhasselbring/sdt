@@ -26,6 +26,7 @@ export function validateNewProjectData(projectData) {
         if (fs.existsSync(projectSaveLocation)) {
             reject({ success: false, error: 'Project file already exists. Please choose a different location or change the file name.' });
         }
+        projectData.validated = true;
         resolve(projectData);
     });
 }
