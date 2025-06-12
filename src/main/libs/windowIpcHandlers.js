@@ -35,3 +35,10 @@ export function createMaximizeHandler(mainWindowGetter) {
     }
   };
 } 
+
+
+export default {
+  createMinimizeHandler,
+  createCloseHandler,
+  createMaximizeHandler
+};

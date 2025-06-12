@@ -7,23 +7,9 @@
 import { ipcMain, app } from 'electron';
 import fs from 'node:fs';
 import path from 'path';
-import {
-  handleDbRun,
-  handleDbGet,
-  handleDbAll,
-  handleGetAllInputDirectories,
-  handleGetFilesInDirectory
-} from '../libs/databaseIpcHandlers.js';
-import {
-  createMinimizeHandler,
-  createCloseHandler,
-  createMaximizeHandler
-} from '../libs/windowIpcHandlers.js';
-import {
-  createSelectDirectoryHandler,
-  createSaveProjectFileHandler,
-  createOpenFileHandler
-} from '../libs/dialogIpcHandlers.js';
+import databaseIpcHandlers from '../libs/databaseIpcHandlers.js';
+import windowIpcHandlers from '../libs/windowIpcHandlers.js';
+import dialogIpcHandlers from '../libs/dialogIpcHandlers.js';
 import projectController from '../controllers/projectController.js';
 
 let mainWindowRef = null;
@@ -34,21 +20,21 @@ let mainWindowRef = null;
  */
 export function registerIpcHandlers(mainWindowGetter) {
   // Database handlers
-  ipcMain.handle('db:run', handleDbRun);
-  ipcMain.handle('db:get', handleDbGet);
-  ipcMain.handle('db:all', handleDbAll);
-  ipcMain.handle('db:get-all-input-directories', handleGetAllInputDirectories);
-  ipcMain.handle('db:get-files-in-directory', handleGetFilesInDirectory);
+  ipcMain.handle('db:run', databaseIpcHandlers.handleDbRun);
+  ipcMain.handle('db:get', databaseIpcHandlers.handleDbGet);
+  ipcMain.handle('db:all', databaseIpcHandlers.handleDbAll);
+  ipcMain.handle('db:get-all-input-directories', databaseIpcHandlers.handleGetAllInputDirectories);
+  ipcMain.handle('db:get-files-in-directory', databaseIpcHandlers.handleGetFilesInDirectory);
 
   // Window control handlers
-  ipcMain.on('window:minimize', createMinimizeHandler(mainWindowGetter));
-  ipcMain.on('window:close', createCloseHandler(mainWindowGetter));
-  ipcMain.on('window:maximize', createMaximizeHandler(mainWindowGetter));
+  ipcMain.on('window:minimize', windowIpcHandlers.createMinimizeHandler(mainWindowGetter));
+  ipcMain.on('window:close', windowIpcHandlers.createCloseHandler(mainWindowGetter));
+  ipcMain.on('window:maximize', windowIpcHandlers.createMaximizeHandler(mainWindowGetter));
 
   // Dialog handlers
-  ipcMain.handle('dialog:selectDirectory', createSelectDirectoryHandler(mainWindowGetter));
-  ipcMain.handle('dialog:saveProjectFile', createSaveProjectFileHandler(mainWindowGetter));
-  ipcMain.handle('dialog:openFile', createOpenFileHandler(mainWindowGetter));
+  ipcMain.handle('dialog:selectDirectory', dialogIpcHandlers.createSelectDirectoryHandler(mainWindowGetter));
+  ipcMain.handle('dialog:saveProjectFile', dialogIpcHandlers.createSaveProjectFileHandler(mainWindowGetter));
+  ipcMain.handle('dialog:openFile', dialogIpcHandlers.createOpenFileHandler(mainWindowGetter));
 
   // App/project logic
   ipcMain.on('app:clearUserData', () => {

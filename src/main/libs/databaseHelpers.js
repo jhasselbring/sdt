@@ -12,6 +12,7 @@ export function createProjectFile(projectData) {
 
         try {
             new Database(projectSaveLocation);
+            projectData.projectFileCreated = true;
             resolve(projectData);
         } catch (error) {
             reject(error);
@@ -32,4 +33,11 @@ export function closeDb() {
         db = null;
         console.log('Database closed.');
     }
+}
+
+export function openDb(projectData) {
+    closeDb();
+    db = new Database(projectData.projectSaveLocation);
+    projectData.projectFileOpened = true;
+    return projectData
 }
