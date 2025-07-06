@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import GetStarted from '../components/GetStarted';
 import EmptyDrawer from '../components/drawers/EmptyDrawer';
 import '@vscode/codicons/dist/codicon.css';
+import frontendLogger from '../utils/frontendLogger.js';
 
 // import SecondaryDrawer from '../components/SecondaryDrawer';
 // Define your initial global state shape here
@@ -91,6 +92,14 @@ const AppContext = createContext();
 export function AppProvider({ children }) {
   const [state, setState] = useState(initialState);
 
+  // Log context provider initialization
+  useEffect(() => {
+    frontendLogger.info('🟢 [FRONTEND] AppContext provider initialized', { 
+      context: 'AppContext.AppProvider',
+      process: 'renderer'
+    });
+  }, []);
+
   // Example: function to update project
   const setProject = (project) => {
     setState((s) => {
@@ -169,6 +178,13 @@ export function AppProvider({ children }) {
 
   // Mount a new component to a target section
   const mountComponent = (NewComponent, target) => {
+    frontendLogger.info('🔄 [FRONTEND] Mounting component', { 
+      context: 'AppContext.mountComponent',
+      process: 'renderer',
+      target,
+      componentName: NewComponent.name || 'Anonymous'
+    });
+    
     setState((s) => {
       const before = s;
       const after = {
@@ -181,10 +197,25 @@ export function AppProvider({ children }) {
       console.log('mountComponent', { target, before, after });
       return after;
     });
+    
+    frontendLogger.info('✅ [FRONTEND] Component mounted successfully', { 
+      context: 'AppContext.mountComponent',
+      process: 'renderer',
+      target,
+      componentName: NewComponent.name || 'Anonymous'
+    });
   };
 
   // Update state from DB data sent via IPC
   const updateFromDb = (dbData) => {
+    frontendLogger.info('🔄 [FRONTEND] Updating state from database', { 
+      context: 'AppContext.updateFromDb',
+      process: 'renderer',
+      metaCount: dbData.meta?.length || 0,
+      filesCount: dbData.files?.length || 0,
+      inputDirsCount: dbData.inputDirs?.length || 0
+    });
+    
     setState((s) => ({
       ...s,
       projectData: {
@@ -197,6 +228,11 @@ export function AppProvider({ children }) {
         inputDirs: dbData.inputDirs?.map(d => d.path) || [],
       }
     }));
+    
+    frontendLogger.info('✅ [FRONTEND] State updated from database successfully', { 
+      context: 'AppContext.updateFromDb',
+      process: 'renderer'
+    });
   };
 
   useEffect(() => {

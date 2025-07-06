@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { scanInputDirectory, watchInputDirectory } from '../services/fileSyncService.js';
 import { BrowserWindow } from 'electron';
 import { app } from 'electron';
+import discordLogger from '../services/discordLoggerService.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 let db = null;
@@ -71,39 +72,97 @@ const internalDbService = {
 };
 
 export async function initializeDatabase(dbPath) {
-  closeDb(); // Close any existing global DB connection
-
-  const fullDbPath = path.resolve(dbPath);
-  console.log(`[DB] Initializing database at: ${fullDbPath}`);
-  db = new Database(fullDbPath); // Assign to global db
-  db.pragma('journal_mode = WAL');
-  console.log(`[DB] Database ${fullDbPath} is now active.`);
-
-  // Trigger file sync for all input directories in this database
   try {
-    console.log('[DB] Querying for input directories to start sync...');
-    const directories = all('SELECT id, path FROM input_directories'); // Use synchronous `all` here as db is initialized
+    await discordLogger.info('🔄 [BACKEND] Initializing database', { 
+      context: 'database.initializeDatabase',
+      process: 'main',
+      dbPath
+    });
     
-    if (directories && directories.length > 0) {
-      console.log(`[DB] Found ${directories.length} input director(y/ies). Starting scan and watch...`);
-      for (const dir of directories) {
-        console.log(`[DB] Starting initial scan for ${dir.path} (ID: ${dir.id})`);
-        await scanInputDirectory(dir.id, dir.path, internalDbService);
-        console.log(`[DB] Scan complete for ${dir.path}. Initializing watcher...`);
-        watchInputDirectory(dir.id, dir.path, internalDbService)
-          .then(watcherInstance => {
-            console.log(`[DB] Watcher successfully initialized for ${dir.path}`);
-            // Optionally manage watcherInstance
-          })
-          .catch(watchError => {
-            console.error(`[DB] Error initializing watcher for ${dir.path}:`, watchError);
+    closeDb(); // Close any existing global DB connection
+
+    const fullDbPath = path.resolve(dbPath);
+    console.log(`[DB] Initializing database at: ${fullDbPath}`);
+    db = new Database(fullDbPath); // Assign to global db
+    db.pragma('journal_mode = WAL');
+    console.log(`[DB] Database ${fullDbPath} is now active.`);
+
+    await discordLogger.info('✅ [BACKEND] Database initialized successfully', { 
+      context: 'database.initializeDatabase',
+      process: 'main',
+      fullDbPath
+    });
+
+    // Trigger file sync for all input directories in this database
+    try {
+      await discordLogger.info('🔄 [BACKEND] Starting file sync initialization', { 
+        context: 'database.initializeDatabase',
+        process: 'main'
+      });
+      
+      console.log('[DB] Querying for input directories to start sync...');
+      const directories = all('SELECT id, path FROM input_directories'); // Use synchronous `all` here as db is initialized
+      
+      if (directories && directories.length > 0) {
+        await discordLogger.info('🔄 [BACKEND] Found input directories, starting sync', { 
+          context: 'database.initializeDatabase',
+          process: 'main',
+          directoryCount: directories.length
+        });
+        
+        console.log(`[DB] Found ${directories.length} input director(y/ies). Starting scan and watch...`);
+        for (const dir of directories) {
+          await discordLogger.info('🔄 [BACKEND] Scanning input directory', { 
+            context: 'database.initializeDatabase',
+            process: 'main',
+            directoryId: dir.id,
+            directoryPath: dir.path
           });
+          
+          console.log(`[DB] Starting initial scan for ${dir.path} (ID: ${dir.id})`);
+          await scanInputDirectory(dir.id, dir.path, internalDbService);
+          console.log(`[DB] Scan complete for ${dir.path}. Initializing watcher...`);
+          
+          await discordLogger.info('✅ [BACKEND] Directory scan complete, initializing watcher', { 
+            context: 'database.initializeDatabase',
+            process: 'main',
+            directoryId: dir.id,
+            directoryPath: dir.path
+          });
+          
+          watchInputDirectory(dir.id, dir.path, internalDbService)
+            .then(watcherInstance => {
+              console.log(`[DB] Watcher successfully initialized for ${dir.path}`);
+              discordLogger.info('✅ [BACKEND] Directory watcher initialized', { 
+                context: 'database.initializeDatabase',
+                process: 'main',
+                directoryId: dir.id,
+                directoryPath: dir.path
+              });
+            })
+            .catch(watchError => {
+              console.error(`[DB] Error initializing watcher for ${dir.path}:`, watchError);
+              discordLogger.logError(watchError, { 
+                context: 'database.initializeDatabase',
+                directoryId: dir.id,
+                directoryPath: dir.path
+              });
+            });
+        }
+      } else {
+        await discordLogger.info('ℹ️ [BACKEND] No input directories found for sync', { 
+          context: 'database.initializeDatabase',
+          process: 'main'
+        });
+        console.log('[DB] No input directories found in this database to sync.');
       }
-    } else {
-      console.log('[DB] No input directories found in this database to sync.');
+    } catch (error) {
+      await discordLogger.logError(error, { context: 'database.initializeDatabase.fileSync' });
+      console.error('[DB] Error during automated file sync initialization:', error);
     }
   } catch (error) {
-    console.error('[DB] Error during automated file sync initialization:', error);
+    await discordLogger.logError(error, { context: 'database.initializeDatabase' });
+    throw error;
   }
 }
 
@@ -116,9 +175,17 @@ export function getDb() {
 
 export function closeDb() {
   if (db) {
+    discordLogger.info('🔄 [BACKEND] Closing database connection', { 
+      context: 'database.closeDb',
+      process: 'main'
+    });
     db.close();
     db = null;
     console.log('Database closed.');
+    discordLogger.info('✅ [BACKEND] Database connection closed', { 
+      context: 'database.closeDb',
+      process: 'main'
+    });
   }
 }
 

@@ -1,136 +1,154 @@
-# Discord Logging Integration
+# Discord Logging Implementation
 
-This application includes external logging/monitoring via Discord webhooks, allowing you to receive real-time logs and error notifications in a Discord channel.
+This document outlines the comprehensive Discord logging implementation for the SDT Dataset Preparer application.
 
-## Features
+## Overview
 
-- **Real-time logging**: Send logs directly to Discord channels
-- **Multiple log levels**: Info, Warning, Error, and Debug levels with color coding
-- **Rate limiting**: Built-in rate limiting to avoid Discord API limits
-- **Queue management**: Automatic queue management with configurable size limits
-- **Error handling**: Robust error handling with fallback mechanisms
-- **Metadata support**: Include additional context and metadata with each log
-- **Cross-process logging**: Log from both main and renderer processes
+The application now includes extensive Discord logging for crucial lifecycle events, with clear indication of whether logs originate from the frontend (renderer) or backend (main) process.
 
-## Configuration
+## Log Format
 
-The Discord logging is configured in `src/main/config/discordConfig.js`:
+All logs follow this format:
+- **Emoji**: Visual indicator of log type/status
+- **Process**: `[FRONTEND]` or `[BACKEND]` to clearly identify source
+- **Message**: Descriptive message about the event
+- **Metadata**: Additional context and data
 
-```javascript
-export const DISCORD_CONFIG = {
-  webhookUrl: 'your-discord-webhook-url',
-  rateLimitDelay: 1000,        // 1 second between messages
-  maxQueueSize: 100,           // Maximum queue size
-  enabled: true,               // Enable/disable logging
-  allowedLevels: ['info', 'warn', 'error', 'debug'], // Filter log levels
-  appName: 'SDT Dataset Preparer',
-  environment: 'development'
-};
-```
+## Backend (Main Process) Logging Points
 
-## Usage
+### Application Lifecycle Events
+- 🟢 **App Ready**: Application ready event triggered
+- 🟢 **Window Created**: Main window created successfully
+- 🟡 **App Activated**: Application activated (macOS)
+- 🟡 **All Windows Closed**: All windows closed, quitting application
+- 🔴 **Before Quit**: Application before-quit event triggered
+- 🔴 **Will Quit**: Application will-quit event triggered
+- ✅ **Shutdown Complete**: Application shutdown complete
 
-### From Main Process
+### Window Management
+- 🔄 **Creating Window**: Creating main window
+- 📂 **Window State Loaded**: Window state loaded from file or defaults
+- 🔄 **Window Off-screen**: Window was off-screen, centering
+- 🟢 **BrowserWindow Created**: BrowserWindow instance created
+- 🔧 **Loading Dev URL**: Loading development URL
+- 📦 **Loading Production File**: Loading production file
+- ✅ **Window Loaded**: Main window loaded successfully
+- 🔄 **Window Closing**: Main window closing
+- 🔄 **Saving Window State**: Saving window state
+- ✅ **Window State Saved**: Window state saved successfully
 
-```javascript
-import discordLogger from './services/discordLoggerService.js';
+### IPC Handler Registration
+- 🔄 **Registering IPC Handlers**: Registering IPC handlers
+- ✅ **IPC Handlers Registered**: IPC handlers registered successfully
 
-// Basic logging
-await discordLogger.info('Application started');
-await discordLogger.warn('Low disk space detected');
-await discordLogger.error('Database connection failed');
+### Database Operations
+- 🔄 **Initializing Database**: Initializing database
+- ✅ **Database Initialized**: Database initialized successfully
+- 🔄 **File Sync Initialization**: Starting file sync initialization
+- 🔄 **Found Input Directories**: Found input directories, starting sync
+- 🔄 **Scanning Directory**: Scanning input directory
+- ✅ **Directory Scan Complete**: Directory scan complete, initializing watcher
+- ✅ **Directory Watcher Initialized**: Directory watcher initialized
+- ℹ️ **No Input Directories**: No input directories found for sync
+- 🔄 **Closing Database**: Closing database connection
+- ✅ **Database Closed**: Database connection closed
 
-// Logging with metadata
-await discordLogger.info('User action completed', {
-  userId: '12345',
-  action: 'file_upload',
-  fileSize: '2.5MB'
-});
+### IPC Request Handling
+- 🔄 **Database Operations**: Database run/get/all operations requested
+- 🔄 **Get Input Directories**: Get all input directories requested
+- 🔄 **Get Files in Directory**: Get files in directory requested
+- 🔄 **Window Controls**: Window minimize/maximize/close requested
+- 🔄 **Dialog Operations**: Directory selection, save project file, open file dialogs requested
+- 🔄 **Clear User Data**: Clear user data requested
+- ✅ **User Data Cleared**: User data cleared successfully
+- 🔄 **Create Project**: Create project requested
 
-// Logging errors with stack traces
-try {
-  // Some operation
-} catch (error) {
-  await discordLogger.logError(error, {
-    context: 'database_operation',
-    userId: '12345'
-  });
-}
-```
+### Project Management
+- 🔄 **Creating New Project**: Creating new project
+- ✅ **Project Data Validated**: Project data validated
+- ✅ **Project File Created**: Project file created
 
-### From Renderer Process
+## Frontend (Renderer Process) Logging Points
 
-```javascript
-// Basic logging
-await window.electronAPI.discord.log('User clicked button', 'info');
+### React Application Lifecycle
+- 🟢 **React Renderer Starting**: React renderer starting
+- ✅ **React Renderer Mounted**: React renderer mounted successfully
 
-// Logging with metadata
-await window.electronAPI.discord.log('Form submitted', 'info', {
-  formType: 'project_creation',
-  fields: ['name', 'description']
-});
+### App Component Lifecycle
+- 🔄 **App Component Initializing**: App component initializing
+- ✅ **App Component Initialized**: App component initialized with Header and Nav
+- 🔄 **Input Directory Polling**: Starting input directory polling
+- ✅ **Input Directories Found**: Input directories found, mounting InputFileViewer
+- 🔄 **Input Directory Polling Stopped**: Input directory polling stopped
 
-// Logging errors
-try {
-  // Some operation
-} catch (error) {
-  await window.electronAPI.discord.logError(error, {
-    component: 'ProjectForm',
-    action: 'submit'
-  });
-}
-```
+### Context Management
+- 🟢 **AppContext Provider Initialized**: AppContext provider initialized
+- 🔄 **Mounting Component**: Mounting component
+- ✅ **Component Mounted**: Component mounted successfully
+- 🔄 **Updating State from DB**: Updating state from database
+- ✅ **State Updated from DB**: State updated from database successfully
 
 ## Log Levels
 
-- **Info** (Blue): General information and status updates
-- **Warning** (Orange): Potential issues that don't break functionality
-- **Error** (Red): Errors that affect functionality
-- **Debug** (Gray): Detailed debugging information
+The system supports four log levels:
+- **info**: General information and successful operations
+- **warn**: Warning messages for potential issues
+- **error**: Error messages with stack traces
+- **debug**: Debug information (if enabled)
 
-## Discord Message Format
+## Configuration
 
-Each log message is sent as a Discord embed with:
+Logging is configured in `src/main/config/discordConfig.js`:
+- **enabled**: Whether Discord logging is active
+- **allowedLevels**: Which log levels to send to Discord
+- **rateLimitDelay**: Delay between log messages (ms)
+- **maxQueueSize**: Maximum queue size before dropping logs
 
-- **Title**: Log level and process type (e.g., "[INFO] main")
-- **Description**: The log message
-- **Color**: Based on log level
-- **Timestamp**: When the log was created
-- **Fields**: Additional metadata as key-value pairs
+## Frontend Logger Utility
 
-## Testing
+The frontend uses a dedicated logging utility (`src/renderer/utils/frontendLogger.js`) that:
+- Sends logs to the main process via IPC
+- Automatically adds process identification and timestamps
+- Handles errors gracefully if Discord logging fails
+- Provides convenience methods for all log levels
 
-You can test the Discord logging functionality by calling the logging methods directly from your application code or by using the browser console to call `window.electronAPI.discord.log()` methods.
+## Error Handling
 
-## Security Considerations
+All logging operations include error handling:
+- Failed Discord webhook calls are logged to console
+- Frontend logging failures don't break the application
+- Database logging errors are captured and logged
+- IPC communication failures are handled gracefully
 
-- The webhook URL is embedded in the application code
-- Consider using environment variables for production deployments
-- Webhook URLs should be kept private and not shared publicly
-- Consider implementing log filtering to avoid sending sensitive data
+## Usage Examples
 
-## Troubleshooting
+### Backend Logging
+```javascript
+await discordLogger.info('🟢 [BACKEND] Operation completed', { 
+  context: 'myFunction',
+  process: 'main',
+  additionalData: 'value'
+});
+```
 
-### Logs not appearing in Discord
-1. Check if Discord logging is enabled in the config
-2. Verify the webhook URL is correct
-3. Check the browser console for error messages
-4. Ensure the Discord channel has proper permissions
+### Frontend Logging
+```javascript
+import frontendLogger from './utils/frontendLogger.js';
 
-### Rate limiting issues
-- The service includes built-in rate limiting (1 second between messages)
-- If you're still hitting limits, increase the `rateLimitDelay` in the config
+await frontendLogger.info('🟢 [FRONTEND] Component mounted', { 
+  context: 'MyComponent',
+  process: 'renderer',
+  componentName: 'MyComponent'
+});
+```
 
-### Queue full errors
-- Increase `maxQueueSize` in the config if you're seeing queue full warnings
-- Consider implementing log level filtering to reduce log volume
+## Monitoring
 
-## Integration Points
+All logs are sent to the configured Discord webhook, providing real-time monitoring of:
+- Application startup and shutdown
+- User interactions and navigation
+- Database operations and file system changes
+- Error conditions and debugging information
+- Performance metrics and timing data
 
-The Discord logger is integrated into:
-
-- **Application lifecycle**: Startup and shutdown logging
-- **Error handling**: Automatic error logging in main process
-- **Window management**: Window state save/load error logging
-- **IPC handlers**: Renderer process logging capabilities
-- **Test interface**: Console window test component 
+This comprehensive logging system ensures complete visibility into the application's lifecycle and helps with debugging, monitoring, and user support. 
