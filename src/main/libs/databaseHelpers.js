@@ -8,23 +8,8 @@ export function createProjectFile(projectData) {
 
     return new Promise(async (resolve, reject) => {
         try {
-            // Create the database file
-            const db = new Database(projectSaveLocation);
-            
-            // Initialize the database with project schema
-            const metadata = {
-                name,
-                inputDir,
-                outputDir,
-                maxHeight,
-                maxWidth,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString()
-            };
-            
-            await initializeProjectDatabase(projectSaveLocation, metadata);
-            
-            resolve({ ...projectData, db });
+            new Database(projectSaveLocation);
+            resolve(projectData);
         } catch (error) {
             reject(error);
         }
@@ -43,4 +28,11 @@ export function closeDb() {
         db = null;
         console.log('Database closed.');
     }
+}
+
+export function openDb(projectData) {
+    closeDb();
+    db = new Database(projectData.projectSaveLocation);
+    projectData.projectFileOpened = true;
+    return projectData
 }

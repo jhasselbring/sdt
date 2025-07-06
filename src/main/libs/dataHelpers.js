@@ -26,24 +26,9 @@ export function validateNewProjectData(projectData) {
         if (fs.existsSync(projectSaveLocation)) {
             reject({ success: false, error: 'Project file already exists. Please choose a different location or change the file name.' });
         }
+
         projectData.validated = true;
+        
         resolve(projectData);
-    });
-}
-
-export function createProjectFile(projectData) {
-    const { inputDir, maxHeight, maxWidth, name, outputDir, projectSaveLocation } = projectData;
-    const projectMetadata = {
-        name,
-        inputDir,
-        outputDir,
-        maxHeight,
-        maxWidth,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-    };
-
-    return new Promise((resolve, reject) => {
-
     });
 }

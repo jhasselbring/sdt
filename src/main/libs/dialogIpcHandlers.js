@@ -58,3 +58,10 @@ export function createOpenFileHandler(mainWindowGetter) {
     return { canceled: false, filePaths: result.filePaths };
   };
 } 
+
+
+export default {
+  createSelectDirectoryHandler,
+  createSaveProjectFileHandler,
+  createOpenFileHandler
+};

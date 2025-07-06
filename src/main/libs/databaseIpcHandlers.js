@@ -79,3 +79,12 @@ export async function handleGetFilesInDirectory(_, directoryId) {
     return { success: false, error: error.message };
   }
 } 
+
+
+export default {
+  handleDbRun,
+  handleDbGet,
+  handleDbAll,
+  handleGetAllInputDirectories,
+  handleGetFilesInDirectory
+};
