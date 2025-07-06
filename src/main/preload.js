@@ -37,6 +37,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
       return ipcRenderer.invoke('db:get-files-in-directory', directoryId);
     },
   },
+  discord: {
+    log: (message, level = 'info', metadata = {}) => {
+      console.log('Discord log called from preload.js:', message, level, metadata);
+      return ipcRenderer.invoke('discord:log', message, level, metadata);
+    },
+    logError: (error, context = {}) => {
+      console.log('Discord logError called from preload.js:', error, context);
+      return ipcRenderer.invoke('discord:logError', error, context);
+    },
+  },
   onDbUpdated: (callback) => ipcRenderer.on('db-updated', (event, data) => callback(data)),
 });
 

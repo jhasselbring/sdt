@@ -25,6 +25,7 @@ import {
   createOpenFileHandler
 } from '../libs/dialogIpcHandlers.js';
 import projectController from '../controllers/projectController.js';
+import discordLogger from '../services/discordLoggerService.js';
 
 let mainWindowRef = null;
 
@@ -66,6 +67,27 @@ export function registerIpcHandlers(mainWindowGetter) {
 
   ipcMain.handle('app:createProject', async (_event, projectData) => {
     return projectController.createNewAndLoadProject(projectData);
+  });
+
+  // Discord logging handlers
+  ipcMain.handle('discord:log', async (_event, message, level = 'info', metadata = {}) => {
+    try {
+      await discordLogger.log(message, level, metadata);
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to log to Discord:', error);
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle('discord:logError', async (_event, error, context = {}) => {
+    try {
+      await discordLogger.logError(error, context);
+      return { success: true };
+    } catch (logError) {
+      console.error('Failed to log error to Discord:', logError);
+      return { success: false, error: logError.message };
+    }
   });
 }
 

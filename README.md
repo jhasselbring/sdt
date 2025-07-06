@@ -1,36 +1,45 @@
-# React + Vite
+# SDT - Dataset Preparer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An Electron-based desktop application for preparing and managing datasets with file synchronization capabilities.
 
-Currently, two official plugins are available:
+## Features
+- File synchronization and monitoring
+- SQLite database integration
+- Modular component architecture
+- Cross-platform support (Windows, macOS, Linux)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Development
 
-## Expanding the ESLint configuration
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
 
-If you are developing a production application, we recommend updating the configuration to enable more advanced lint rules.
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default [
-  {
-    plugins: {
-      // Add the react-x and react-dom plugins
-      'react-x': reactX,
-      'react-dom': reactDom,
-    },
-    rules: {
-      // other rules...
-      // Enable its recommended rules
-      ...reactX.configs['recommended'].rules,
-      ...reactDom.configs.recommended.rules,
-    },
-  },
-]
+### Setup
+```bash
+npm install
 ```
+
+### Development Mode
+```bash
+npm run dev:electron
+```
+
+### Build
+```bash
+npm run build
+```
+
+### Database Rebuild (if needed)
+```bash
+npm run rebuild
+```
+
+## Project Structure
+- `src/main/` - Electron main process
+- `src/renderer/` - React frontend
+- `src/main/controllers/` - Business logic flows
+- `src/main/services/` - Core services
+- `src/main/libs/` - Utility functions
+
+## IPC Communication
+See `docs/Docs.md` for Inter-Process Communication patterns.

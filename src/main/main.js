@@ -5,6 +5,7 @@ import { initializeDatabase, run, get, all, closeDb } from './tmp/database.js';
 import isDev from 'electron-is-dev';
 import fs from 'node:fs';
 import { registerIpcHandlers } from './ipc/ipcMain.js';
+import discordLogger from './services/discordLoggerService.js';
 
 const checkSquirrelStartup = async () => {
   try {
@@ -28,12 +29,13 @@ let mainWindowRef;
 global.mainWindowRef = null;
 const windowStatePath = path.join(app.getPath('userData'), 'window-state.json');
 
-function loadWindowState() {
+async function loadWindowState() {
   try {
     if (fs.existsSync(windowStatePath)) {
       return JSON.parse(fs.readFileSync(windowStatePath, 'utf8'));
     }
   } catch (e) {
+    await discordLogger.logError(e, { context: 'loadWindowState' });
     console.error('Failed to load window state:', e);
   }
 
@@ -42,12 +44,13 @@ function loadWindowState() {
   return { width: bounds.width, height: bounds.height, x: bounds.x, y: bounds.y };
 }
 
-function saveWindowState(win) {
+async function saveWindowState(win) {
   if (!win) return;
   const bounds = win.getBounds();
   try {
     fs.writeFileSync(windowStatePath, JSON.stringify(bounds));
   } catch (e) {
+    await discordLogger.logError(e, { context: 'saveWindowState', bounds });
     console.error('Failed to save window state:', e);
   }
 }
@@ -67,7 +70,7 @@ function isWindowOffScreen(bounds) {
 }
 
 const createWindow = async () => {
-  const state = loadWindowState();
+  const state = await loadWindowState();
 
   let windowOptions = {
     width: state.width || 800,
@@ -94,7 +97,7 @@ const createWindow = async () => {
   mainWindowRef = mainWindow;
   global.mainWindowRef = mainWindow;
 
-  mainWindow.on('close', () => saveWindowState(mainWindow));
+  mainWindow.on('close', async () => await saveWindowState(mainWindow));
 
   if (isDev) {
     await mainWindow.loadURL('http://localhost:3000');
@@ -107,8 +110,14 @@ const createWindow = async () => {
 // Register IPC handlers and pass a getter for mainWindowRef
 registerIpcHandlers(() => mainWindowRef);
 
-app.on('ready', () => {
-  createWindow();
+app.on('ready', async () => {
+  try {
+    await discordLogger.logStartup();
+    await createWindow();
+  } catch (error) {
+    await discordLogger.logError(error, { context: 'app.ready' });
+    console.error('Failed to start application:', error);
+  }
 });
 
 app.on('window-all-closed', () => {
@@ -121,6 +130,11 @@ app.on('activate', () => {
   }
 });
 
-app.on('will-quit', () => {
-  closeDb();
+app.on('will-quit', async () => {
+  try {
+    await discordLogger.logShutdown();
+    closeDb();
+  } catch (error) {
+    console.error('Error during shutdown:', error);
+  }
 });

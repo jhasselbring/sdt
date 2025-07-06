@@ -29,3 +29,6 @@ dist-ssr
 .env.test.local
 .env.production.local
 
+# Discord webhook configuration
+src/main/config/discordConfig.js
+
