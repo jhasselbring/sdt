@@ -111,7 +111,7 @@ const NewProjectForm = ({ onClose }) => {
     console.log('%c@@@ handleSubmit result:', 'color: orange; font-size: 20px; font-weight: bold;', result);
 
 
-    if (result && result.error) {
+    if (result && !result.success) {
       setError(result?.error || 'Failed to create project. Unknown error.');
     } else {
       console.log('Project created successfully:', result.data);

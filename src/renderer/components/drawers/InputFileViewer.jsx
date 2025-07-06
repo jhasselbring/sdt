@@ -203,7 +203,6 @@ const InputFileViewer = () => {
     }
   };
 
-
   if (error) {
     return <ViewerContainer>Error: {error}</ViewerContainer>;
   }
